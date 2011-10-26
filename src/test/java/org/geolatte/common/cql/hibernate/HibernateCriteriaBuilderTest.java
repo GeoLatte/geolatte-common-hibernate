@@ -19,9 +19,9 @@
  * Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
  */
 
-package org.geolatte.cql.hibernate;
+package org.geolatte.common.cql.hibernate;
 
-import org.geolatte.cql.AbstractCriteriaBuilderTest;
+import org.geolatte.common.cql.AbstractCriteriaBuilderTest;
 import org.geolatte.testobjects.FilterableObject;
 import org.h2.tools.Server;
 import org.hibernate.Criteria;

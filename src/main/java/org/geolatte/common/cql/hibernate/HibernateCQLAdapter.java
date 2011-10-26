@@ -1,4 +1,4 @@
-package org.geolatte.cql.hibernate;
+package org.geolatte.common.cql.hibernate;
 
 import org.geolatte.common.cql.CQL;
 import org.geolatte.common.cql.CQLLexer;

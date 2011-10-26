@@ -19,9 +19,8 @@
  * Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
  */
 
-package org.geolatte.cql.hibernate;
+package org.geolatte.common.cql.hibernate;
 
-import org.geolatte.cql.hibernate.AbstractExistenceCriterion;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.QueryException;
@@ -29,24 +28,24 @@ import org.hibernate.criterion.CriteriaQuery;
 
 /**
  * <p>
- * Hibernate criterion that evaluates to <tt>FALSE</tt> if a given property exists and to <tt>TRUE</tt> if the property is not present.
+ * Hibernate criterion that evaluates to <tt>TRUE</tt> if a given property exists and to <tt>FALSE</tt> if the property is not present.
  * </p>
  * <p>
- * <i>Creation-Date</i>: 01-Jun-2010<br>
- * <i>Creation-Time</i>:  01:05:36<br>
+ * <i>Creation-Date</i>: 31-May-2010<br>
+ * <i>Creation-Time</i>:  18:04:30<br>
  * </p>
  *
  * @author Bert Vanhooff
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class PropertyDoesNotExistCriterion extends AbstractExistenceCriterion {
+public class PropertyExistsCriterion extends AbstractExistenceCriterion {
 
     /**
-     * Constructs a <tt>PropertyDoesNotExistCriterion</tt>
+     * Constructs a PropertyExistsCriterion
      * @param propertyName The property name that is checked for existence
      */
-    public PropertyDoesNotExistCriterion(String propertyName) {
+    public PropertyExistsCriterion(String propertyName) {
         super(propertyName);
     }
 
@@ -72,6 +71,6 @@ public class PropertyDoesNotExistCriterion extends AbstractExistenceCriterion {
         }
 
         // if there are columns that map the given property.. the property exists, so we don't need to add anything to the sql
-        return columns.length > 0 ? "FALSE" : "TRUE";
+        return columns.length > 0 ? "TRUE" : "FALSE";
     }
 }

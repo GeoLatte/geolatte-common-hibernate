@@ -19,11 +19,11 @@
  * Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
  */
 
-package org.geolatte.cql.hibernate;
+package org.geolatte.common.cql.hibernate;
 
-import org.geolatte.core.reflection.EntityClassReader;
-import org.geolatte.cql.AbstractBuilder;
-import org.geolatte.cql.node.*;
+import org.geolatte.common.reflection.EntityClassReader;
+import org.geolatte.common.cql.AbstractBuilder;
+import org.geolatte.common.cql.node.*;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;

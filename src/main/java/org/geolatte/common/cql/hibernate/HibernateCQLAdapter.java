@@ -1,11 +1,11 @@
-package org.geolatte.cql.hibernate;
+package org.geolatte.common.cql.hibernate;
 
-import org.geolatte.cql.CQL;
-import org.geolatte.cql.CQLLexer;
-import org.geolatte.cql.lexer.LexerException;
-import org.geolatte.cql.node.Start;
-import org.geolatte.cql.parser.Parser;
-import org.geolatte.cql.parser.ParserException;
+import org.geolatte.common.cql.CQL;
+import org.geolatte.common.cql.CQLLexer;
+import org.geolatte.common.cql.lexer.LexerException;
+import org.geolatte.common.cql.node.Start;
+import org.geolatte.common.cql.parser.Parser;
+import org.geolatte.common.cql.parser.ParserException;
 import org.hibernate.criterion.DetachedCriteria;
 
 import java.io.IOException;

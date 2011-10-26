@@ -21,7 +21,7 @@
 
 package org.geolatte.cql.hibernate;
 
-import org.geolatte.cql.AbstractCriteriaBuilderTest;
+import org.geolatte.common.cql.AbstractCriteriaBuilderTest;
 import org.geolatte.testobjects.FilterableObject;
 import org.h2.tools.Server;
 import org.hibernate.Criteria;

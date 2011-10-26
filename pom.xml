@@ -166,7 +166,6 @@
                         <exclude>**/TestFeatureNoShape*$*</exclude>
                         <exclude>**/TestFeatureDoubleShape.java</exclude>
                         <exclude>**/CQLTestCase.java</exclude>
-                        <exclude>**/WKTParseSpeedTest.java</exclude>
                         <exclude>**/core/expressions/AbstractStringComparisonTest.java</exclude>
                         <exclude>**/core/expressions/AbstractBooleanComparisonTest.java</exclude>
                     </excludes>

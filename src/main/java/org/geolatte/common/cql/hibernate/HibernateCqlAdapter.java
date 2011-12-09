@@ -1,7 +1,7 @@
 package org.geolatte.common.cql.hibernate;
 
-import org.geolatte.common.cql.CQL;
-import org.geolatte.common.cql.CQLLexer;
+import org.geolatte.common.cql.Cql;
+import org.geolatte.common.cql.CqlLexer;
 import org.geolatte.common.cql.lexer.LexerException;
 import org.geolatte.common.cql.node.Start;
 import org.geolatte.common.cql.parser.Parser;
@@ -17,7 +17,7 @@ import java.text.ParseException;
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 7/29/11
  */
-public class HibernateCQLAdapter extends CQL {
+public class HibernateCqlAdapter extends Cql {
 
        /**
      * Constructs a Hibernate <tt>DetachedCriteria</tt> based on the given CQL expression, for the given class.
@@ -30,7 +30,7 @@ public class HibernateCQLAdapter extends CQL {
     public static DetachedCriteria toCriteria(String cqlExpression, Class forClass) throws ParseException {
 
         try {
-            Parser p = new Parser( new CQLLexer( new PushbackReader(new StringReader(cqlExpression), 1024)));
+            Parser p = new Parser( new CqlLexer( new PushbackReader(new StringReader(cqlExpression), 1024)));
             // Parse the input.
             Start tree = p.parse();
 

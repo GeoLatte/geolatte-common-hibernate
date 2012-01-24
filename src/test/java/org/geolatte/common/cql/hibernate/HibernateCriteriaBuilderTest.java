@@ -126,7 +126,7 @@ public class HibernateCriteriaBuilderTest extends AbstractCriteriaBuilderTest {
 
 
             // verify whether we can load it back from the database using the given query
-            DetachedCriteria criteria = HibernateCQLAdapter.toCriteria(cqlString, FilterableObject.class);
+            DetachedCriteria criteria = HibernateCqlAdapter.toCriteria(cqlString, FilterableObject.class);
             List<FilterableObject> loadedObjects = load(criteria, hibernateUtil);
             if (expectedResult) { // if expectedresult = true, the test object should be loaded
                 Assert.assertTrue("Number of objects loaded does not equal 1", loadedObjects.size() == 1);

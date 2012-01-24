@@ -1,6 +1,7 @@
 package org.geolatte.common.cql.hibernate;
 
-import org.geolatte.common.cql.CQLLexer;
+import org.geolatte.common.cql.Cql;
+import org.geolatte.common.cql.CqlLexer;
 import org.geolatte.common.cql.lexer.LexerException;
 import org.geolatte.common.cql.node.Start;
 import org.geolatte.common.cql.parser.Parser;
@@ -15,14 +16,14 @@ import java.text.ParseException;
 /**
  * <p>
  * Utility class that translates CQL expressions such as "(AnAttribute > 5) and (AnotherOne LIKE 'this')" into
- * Hibernate criteria. See also {@link org.geolatte.common.cql.CQL}.
+ * Hibernate criteria. See also {@link org.geolatte.common.cql.Cql}.
  * </p>
  *
  * @author Bert Vanhooff
  * @author <a href="http://www.qmino.com">Qmino bvba</a>
  * @since SDK1.5
  */
-public class CQLHibernate extends org.geolatte.common.cql.CQL {
+public class CqlHibernate extends Cql {
     
     /**
      * Constructs a Hibernate <tt>DetachedCriteria</tt> based on the given CQL expression, for the given class.
@@ -35,7 +36,7 @@ public class CQLHibernate extends org.geolatte.common.cql.CQL {
     public static DetachedCriteria toCriteria(String cqlExpression, Class forClass) throws ParseException {
 
         try {
-            Parser p = new Parser( new CQLLexer( new PushbackReader(new StringReader(cqlExpression), 1024)));
+            Parser p = new Parser( new CqlLexer( new PushbackReader(new StringReader(cqlExpression), 1024)));
             // Parse the input.
             Start tree = p.parse();
 

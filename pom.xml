@@ -27,7 +27,7 @@
     <groupId>org.geolatte</groupId>
     <artifactId>geolatte-common-hibernate</artifactId>
     <packaging>jar</packaging>
-    <version>0.5</version>
+    <version>0.6-SNAPSHOT</version>
     <name>geolatte-common-hibernate</name>
     <description>
         This GeoLatte-common-hibernate library contains classes that depend on Hibernate (Spatial).

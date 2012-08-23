@@ -37,7 +37,7 @@ public class AutoMapper {
 
     protected final static Logger logger = LoggerFactory.getLogger(AutoMapper.class);
 
-    protected final static String PACKAGE_NAME = "org.hibernatespatial.features.generated";
+    protected final static String PACKAGE_NAME = "org.geolatte.common.features.generated";
 
     private static Map<TableName, Class<?>> tableClassMap = new HashMap<TableName, Class<?>>();
 

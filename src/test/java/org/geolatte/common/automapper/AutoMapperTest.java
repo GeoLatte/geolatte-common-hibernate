@@ -69,7 +69,7 @@ public class AutoMapperTest {
         cfg.addTable(tblRef);
 
         //Test that the configuration is successful
-        final AutoMapper autoMapper = new AutoMapper(cfg);
+        final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
         Document mapping = runAutoMapper(autoMapper);
         assertNotNull(mapping);
         LOGGER.debug("Mapping file:\n" + mapping.asXML());
@@ -107,7 +107,7 @@ public class AutoMapperTest {
         cfg.addTableConfig(new TableConfig.Builder(tblRef).withId("ID").result());
 
         //Test that the configuration is successful
-        final AutoMapper autoMapper = new AutoMapper(cfg);
+        final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
         Document mapping = runAutoMapper(autoMapper);
         assertNotNull(mapping);
         LOGGER.debug("Mapping file:\n" + mapping.asXML());
@@ -138,7 +138,7 @@ public class AutoMapperTest {
         cfg.addTable(tblRef);
 
         //Test that the configuration is successful
-        final AutoMapper autoMapper = new AutoMapper(cfg);
+        final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
         Document mapping = runAutoMapper(autoMapper);
         assertNotNull(mapping);
         assertNull(autoMapper.getIdAttribute(TableRef.valueOf("TESTAUTOMAP")));
@@ -154,6 +154,12 @@ public class AutoMapperTest {
             }
         });
         factory.close();
+    }
+
+    private DisposableClassLoader disposableCL() {
+        DisposableClassLoader cl =  new DisposableClassLoader(Thread.currentThread().getContextClassLoader());
+        Thread.currentThread().setContextClassLoader(cl);
+        return cl;
     }
 
     private SessionFactory buildSessionFactory(Document mapping) {

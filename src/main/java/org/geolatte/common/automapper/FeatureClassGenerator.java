@@ -37,7 +37,7 @@ public class FeatureClassGenerator {
 		this.naming = naming;
 	}
 
-	public Class<?> generate(ClassInfo classInfo) {
+	public Class<?> generate(ClassInfo classInfo, ClassLoader classLoader) {
 
 		try {
 			String classname = packageName + "." + classInfo.getClassName();
@@ -51,8 +51,7 @@ public class FeatureClassGenerator {
 				pojo.addMethod(setter);
 			}
 			ProtectionDomain pd = pojo.getClass().getProtectionDomain();
-			ClassLoader cl = Thread.currentThread().getContextClassLoader();
-			Class<?> clazz = pojo.toClass(cl, pd);
+			Class<?> clazz = pojo.toClass(classLoader, pd);
 			pojo.detach();
 			return clazz;
 		} catch (CannotCompileException e){

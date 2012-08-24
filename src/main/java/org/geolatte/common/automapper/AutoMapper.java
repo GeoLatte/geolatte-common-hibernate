@@ -42,10 +42,21 @@ public class AutoMapper {
 
     final private Map<TableRef, ClassInfo> tableClassInfoMap = new HashMap<TableRef, ClassInfo>();
 
+    final private ClassLoader classLoader;
 
 
-    public AutoMapper (AutoMapConfig config){
+    /**
+     * Creates an <code>AutoMapper</code> using the specified configuration and <code>ClassLoader</code>.
+     *
+     * <p>The classes created by this <code>AutoMapper</code> will be loaded in the
+     * specified <code>ClassLoader</code>.
+     *
+     * @param config
+     * @param classLoader
+     */
+    public AutoMapper (AutoMapConfig config, ClassLoader classLoader){
         this.config = config;
+        this.classLoader = classLoader;
     }
 
     /**
@@ -66,12 +77,12 @@ public class AutoMapper {
 
         for (TableRef tableRef : tableRefs()) {
             if (isAlreadyMapped(tableRef)) continue;
-            LOGGER.info("Generating class info for table " + tableRef);
             ClassInfo cInfo;
             try {
+                LOGGER.info("Generating class info for table " + tableRef);
                 cInfo = fMapper.createClassInfo(tableConfig(tableRef), dmd);
                 LOGGER.info("Generating class " + cInfo.getClassName() + " for table " + tableRef);
-                Class<?> clazz = fGenerator.generate(cInfo);
+                Class<?> clazz = fGenerator.generate(cInfo, classLoader);
                 tableClassMap.put(tableRef, clazz);
                 tableClassInfoMap.put(tableRef, cInfo);
 
@@ -224,4 +235,5 @@ public class AutoMapper {
     private Collection<TableRef> tableRefs(){
         return this.config.getTableRefs();
     }
+
 }

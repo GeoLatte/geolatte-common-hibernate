@@ -48,6 +48,7 @@ public class AutoMapConfig {
         this(DEFAULT_PACKAGE_NAME, new SimpleNamingStrategy(), typeMapper);
     }
 
+
     public String getPackageName() {
         return packageName;
     }
@@ -76,4 +77,5 @@ public class AutoMapConfig {
     public Collection<TableRef> getTableRefs() {
         return this.tableConfigs.keySet();
     }
+
 }

@@ -97,6 +97,38 @@ public class AutoMapperTest {
     }
 
     @Test
+    public void testConfiguredId() throws SQLException {
+        doWithinConnection("create table testautomap (id integer, name varchar, num int, price double, geometry geometry)");
+        doWithinConnection("insert into testautomap values (1, 'test', 2, 2.43, ST_GeomFromText('POINT(1 1)', 4326))");
+        doWithinConnection("insert into testautomap values (1, 'test 2', 3, 2.43, ST_GeomFromText('POINT(2 2)', 4326))");
+
+        AutoMapConfig cfg = new AutoMapConfig(new TypeMapper("BLOB"));
+        TableRef tblRef = TableRef.valueOf("TESTAUTOMAP");
+        cfg.addTableConfig(new TableConfig.Builder(tblRef).withId("ID").result());
+
+        //Test that the configuration is successful
+        final AutoMapper autoMapper = new AutoMapper(cfg);
+        Document mapping = runAutoMapper(autoMapper);
+        assertNotNull(mapping);
+        LOGGER.debug("Mapping file:\n" + mapping.asXML());
+        assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
+        assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
+        assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
+        assertEquals("id", autoMapper.getIdAttribute(TableRef.valueOf("TESTAUTOMAP")));
+
+        //check if information can be retrieved
+        final SessionFactory factory = buildSessionFactory(mapping);
+        doWithinTransaction(factory, new TxOp(){
+            public void execute(Session session){
+                Criteria criteria = session.createCriteria(autoMapper.getClass(TableRef.valueOf("TESTAUTOMAP")));
+                List list = criteria.list();
+                assertTrue(list.size() == 2);
+            }
+        });
+        factory.close();
+    }
+
+    @Test
     public void testNoPKey() throws SQLException {
         doWithinConnection("create table testautomap (id integer, name varchar, num int, price double, geometry geometry)");
         doWithinConnection("insert into testautomap values (1, 'test', 2, 2.43, ST_GeomFromText('POINT(1 1)', 4326))");

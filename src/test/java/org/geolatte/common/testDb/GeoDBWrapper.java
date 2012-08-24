@@ -39,7 +39,7 @@ public class GeoDBWrapper {
 
     private static final String tcpPort = "4321";
     private static final String webPort = "8123";
-    private static final String dbLocation = System.getProperty("java.io.tmpdir") + "/geolattetest";
+//    private static final String dbLocation = System.getProperty("java.io.tmpdir") + "/geolattetest";
     private static Server server;
     private static Server webServer;
 
@@ -60,7 +60,7 @@ public class GeoDBWrapper {
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:h2:" + dbLocation, "sa", "sa");
+        return DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "sa");
     }
 
     public static void initGeoDB() throws SQLException {

@@ -34,15 +34,16 @@ import java.sql.Statement;
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/23/12
  */
-public class TestDb {
+
+public class GeoDBWrapper {
 
     private static final String tcpPort = "4321";
     private static final String webPort = "8123";
-    private static final String dbLocation = "~/geolattetest";
+    private static final String dbLocation = System.getProperty("java.io.tmpdir") + "/geolattetest";
     private static Server server;
     private static Server webServer;
 
-    public TestDb() {
+    public GeoDBWrapper() {
         try {
             server = Server.createTcpServer("-tcpPort", tcpPort);
             webServer = Server.createWebServer("-webPort", webPort);
@@ -121,7 +122,7 @@ public class TestDb {
     }
 
     public static void main(String[] args) throws SQLException {
-        new Console().runTool(new String[]{"-tcpPort", tcpPort, "-webPort", webPort});
+        new Console().run(new String[]{"-tcpPort", tcpPort, "-webPort", webPort});
         initGeoDB();
     }
 }

@@ -32,15 +32,15 @@
     </appender>
 
     <category name="org.hibernate.SQL">
-        <priority value="TRACE"/>
+        <priority value="info"/>
     </category>
 
     <category name="org.hibernate.type">
-        <priority value="TRACE"/>
+        <priority value="info"/>
     </category>
 
     <root>
-        <priority value="debug"/>
+        <priority value="info"/>
         <appender-ref ref="console"/>
     </root>
 

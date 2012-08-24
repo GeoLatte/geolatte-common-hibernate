@@ -22,7 +22,7 @@
 package org.geolatte.common.cql.hibernate;
 
 import org.geolatte.common.cql.AbstractCriteriaBuilderTest;
-import org.geolatte.common.testDb.TestDb;
+import org.geolatte.common.testDb.GeoDBWrapper;
 import org.geolatte.testobjects.FilterableObject;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -54,7 +54,7 @@ import java.util.List;
 @RunWith(Parameterized.class)
 public class HibernateCriteriaBuilderTest extends AbstractCriteriaBuilderTest {
 
-    static TestDb server;
+    static GeoDBWrapper server;
 
     /**
      * Constructor
@@ -70,7 +70,7 @@ public class HibernateCriteriaBuilderTest extends AbstractCriteriaBuilderTest {
     @BeforeClass
     public static void oneTimeSetUp() throws Exception {
 
-        server = new TestDb();
+        server = new GeoDBWrapper();
         // start the server, allows to access the database remotly
        Connection conn = server.getConnection();
         // Execute a random query to check if everything works

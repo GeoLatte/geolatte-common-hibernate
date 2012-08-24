@@ -18,6 +18,7 @@
  * Qmino bvba - Romeinsestraat 18 - 3001 Heverlee  (http://www.qmino.com)
  * Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
  */
+
 package org.geolatte.common.automapper;
 
 /**
@@ -35,20 +36,20 @@ public class MissingIdentifierException extends Exception {
 
 	private static final String basemsg = "No suitable identifier found in table";
 
-	public MissingIdentifierException() {
-		super(basemsg);
-	}
+//	public MissingIdentifierException() {
+//		super(basemsg);
+//	}
 
 	public MissingIdentifierException(String msg) {
 		super(basemsg + ":" + msg);
 	}
 
-	public MissingIdentifierException(Throwable cause) {
-		super(cause);
-	}
-
-	public MissingIdentifierException(String msg, Throwable cause) {
-		super(basemsg + ":" + msg, cause);
-	}
+//	public MissingIdentifierException(Throwable cause) {
+//		super(cause);
+//	}
+//
+//	public MissingIdentifierException(String msg, Throwable cause) {
+//		super(basemsg + ":" + msg, cause);
+//	}
 
 }

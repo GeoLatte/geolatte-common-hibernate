@@ -61,7 +61,7 @@ public class MappingsGenerator {
 		this.mappingDoc = DocumentHelper.createDocument();
 		this.mappingDoc.addDocType("hibernate-mapping",
 				"-//Hibernate/Hibernate Mapping DTD 3.0//EN",
-				"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd");
+				"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd");
 		Element root = this.mappingDoc.addElement("hibernate-mapping");
     	root.addAttribute("package", this.packageName);
 		for (Map.Entry<TableRef, ClassInfo> entry : mapping.entrySet()) {

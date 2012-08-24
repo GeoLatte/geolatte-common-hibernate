@@ -33,8 +33,6 @@ public class FeatureMapper {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FeatureMapper.class);
 
-    private static enum SCol {ID, GEOM};  //"special" columns
-
     private final NamingStrategy naming;
     private final TypeMapper typeMapper;
 
@@ -43,43 +41,41 @@ public class FeatureMapper {
         this.typeMapper = typeMapper;
     }
 
-    public ClassInfo createClassInfo(TableConfig cfg, DatabaseMetaData dmd) throws TableNotFoundException {
+    public ClassInfo createClassInfo(TableConfig cfg, DatabaseMetaData dmd) throws TableNotFoundException, MissingIdentifierException {
         String className = naming.createClassName(cfg.getTableName());
         ClassInfo cInfo = new ClassInfo(cfg.getTableName(), className);
         readColums(cfg, dmd, cInfo);
-        determine(SCol.ID, cfg, dmd, cInfo);
-        determine(SCol.GEOM, cfg, dmd, cInfo);
+        setIdentifier(cfg, dmd, cInfo);
+        setGeometry(cfg, cInfo);
         return cInfo;
     }
 
-    private void determine(SCol fld, TableConfig cfg, DatabaseMetaData dmd, ClassInfo cInfo) {
-        String configuredColumn = getColumn(fld, cfg);
+    private void setIdentifier(TableConfig cfg, DatabaseMetaData dmd, ClassInfo cInfo) throws MissingIdentifierException {
+        String configuredColumn = cfg.getIdColumn();
         if (configuredColumn != null) {
-            setAs(fld, cInfo, cfg.getIdColumn());
+            setAsIdentifier(cInfo, cfg.getIdColumn());
             return;
         }
-        String pkn = determine(fld, cfg.getTableRef(), cInfo, dmd);
-        if (pkn != null) {
-            setAs(fld, cInfo, pkn);
+        String column = determinePrimaryKey(cfg.getTableRef(), dmd);
+        if (column != null) {
+            setAsIdentifier(cInfo, column);
             return;
         }
-        LOGGER.warn("Failed to determine an identifier for " + cfg.getTableRef());
+        throw new MissingIdentifierException(cfg.getTableRef().toString());
     }
 
-    private String getColumn(SCol fld, TableConfig cfg) {
-        if (fld == SCol.GEOM) {
-            return cfg.getGeomColumn();
+    private void setGeometry(TableConfig cfg, ClassInfo cInfo) throws MissingIdentifierException {
+        String configuredColumn = cfg.getGeomColumn();
+        if (configuredColumn != null) {
+            setAsGeometry(cInfo, cfg.getIdColumn());
+            return;
         }
-        if (fld == SCol.ID) {
-            return cfg.getIdColumn();
+        String column = determineGeometry(cfg.getTableRef(), cInfo);
+        if (column != null) {
+            setAsGeometry(cInfo, column);
+            return;
         }
-        return null;
-    }
-
-    private String determine(SCol fld, TableRef tableRef, ClassInfo cInfo, DatabaseMetaData dmd) {
-        return fld == SCol.ID ?
-                determinePrimaryKey(tableRef, dmd) :
-                determineGeometry(tableRef, cInfo);
+        throw new MissingIdentifierException(cfg.getTableRef().toString());
     }
 
     private String determineGeometry(TableRef tableRef, ClassInfo cInfo) {
@@ -138,21 +134,29 @@ public class FeatureMapper {
         }
     }
 
-    private boolean setAs(SCol sCol, ClassInfo cInfo, String column) {
+    private boolean setAsIdentifier(ClassInfo cInfo, String column) {
         for (AttributeInfo ai : cInfo.getAttributes()) {
             if (ai.getColumnName().equals(column)) {
-                if (sCol == SCol.ID) {
-                    ai.setIdentifier(true);
-                }
-                if (sCol == SCol.GEOM) {
-                    ai.setGeometry(true);
-                }
+                ai.setIdentifier(true);
                 return true;
             }
         }
         LOGGER.warn("Attempted to set columns " + column + " as identifier, but no corresponding field in class found.");
         return false;
     }
+
+
+    private boolean setAsGeometry(ClassInfo cInfo, String column) {
+        for (AttributeInfo ai : cInfo.getAttributes()) {
+            if (ai.getColumnName().equals(column)) {
+                ai.setGeometry(true);
+                return true;
+            }
+        }
+        LOGGER.warn("Attempted to set columns " + column + " as geometry, but no corresponding field in class found.");
+        return false;
+    }
+
 
     private void addAttribute(ClassInfo cInfo, String colName, String dbType, int javaType) {
         String hibernateType = null;

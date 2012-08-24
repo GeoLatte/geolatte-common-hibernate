@@ -77,6 +77,8 @@ public class AutoMapper {
 
             } catch (TableNotFoundException e) {
                 LOGGER.warn(e.getMessage());
+            }  catch(MissingIdentifierException e) {
+                LOGGER.warn(e.getMessage());
             }
         }
         LOGGER.info("Generating Hibernate Mapping file");
@@ -148,7 +150,11 @@ public class AutoMapper {
      */
     public String getIdAttribute(TableRef tableRef) {
         ClassInfo cInfo = tableClassInfoMap.get(tableRef);
-        return cInfo.getIdAttribute().getFieldName();
+        if (cInfo == null){
+            return null;
+        }
+        AttributeInfo idAttribute =  cInfo.getIdAttribute();
+        return idAttribute != null ? idAttribute.getFieldName() : null;
     }
 
     /**
@@ -158,6 +164,9 @@ public class AutoMapper {
      */
     public String getGeometryAttribute(TableRef tableRef) {
         ClassInfo cInfo = tableClassInfoMap.get(tableRef);
+        if (cInfo == null) {
+            return null;
+        }
         AttributeInfo geomAttribute = cInfo.getGeomAttribute();
         return geomAttribute != null ? geomAttribute.getFieldName() : null;
     }

@@ -22,8 +22,6 @@ package org.geolatte.common.automapper;
 
 import javassist.CtClass;
 
-import org.hibernatespatial.GeometryUserType;
-
 /**
  * @author Karel Maesen
  * 
@@ -41,10 +39,7 @@ public class AttributeInfo {
 
 	private boolean isIdentifier;
 
-	public boolean isGeometry() {
-		return this.hibernateType.equalsIgnoreCase(GeometryUserType.class
-				.getCanonicalName());
-	}
+    private boolean isGeometry;
 
 	@Override
 	public int hashCode() {
@@ -112,6 +107,12 @@ public class AttributeInfo {
 		this.isIdentifier = isIdentifier;
 	}
 
-	
+    public void setGeometry(boolean isGeometry) {
+        this.isGeometry = isGeometry;
+    }
+
+    public boolean isGeometry(){
+        return this.isGeometry;
+    }
 
 }

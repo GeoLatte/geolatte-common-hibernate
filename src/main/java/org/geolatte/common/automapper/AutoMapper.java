@@ -21,7 +21,6 @@
 package org.geolatte.common.automapper;
 
 import org.dom4j.Document;
-import org.hibernatespatial.HBSpatialExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +34,19 @@ import java.util.*;
  */
 public class AutoMapper {
 
-    protected final static Logger logger = LoggerFactory.getLogger(AutoMapper.class);
+    protected final static Logger LOGGER = LoggerFactory.getLogger(AutoMapper.class);
 
-    protected final static String PACKAGE_NAME = "org.geolatte.common.features.generated";
+    final private AutoMapConfig config;
 
-    private static Map<TableName, Class<?>> tableClassMap = new HashMap<TableName, Class<?>>();
+    final private Map<TableRef, Class<?>> tableClassMap = new HashMap<TableRef, Class<?>>();
 
-    private static Map<TableName, ClassInfo> tableClassInfoMap = new HashMap<TableName, ClassInfo>();
+    final private Map<TableRef, ClassInfo> tableClassInfoMap = new HashMap<TableRef, ClassInfo>();
 
-    private static NamingStrategy naming = new SimpleNamingStrategy();
+
+
+    public AutoMapper (AutoMapConfig config){
+        this.config = config;
+    }
 
     /**
      * Returns the Hibernate mapping document for the specified tables
@@ -53,60 +56,52 @@ public class AutoMapper {
      * This connection will not be closed on return.</p>
      *
      * @param conn       JDBC <code>Connection</code> used during mapping
-     * @param catalog    database catalog
-     * @param schema     database schema
-     * @param tableNames list of table names
      * @return the XML mapping document that maps the tables specified by the catalog, schema and tablenames arguments.
      * @throws SQLException
      */
-    public static synchronized Document map(Connection conn, String catalog, String schema, Collection<String> tableNames) throws SQLException {
-        TypeMapper typeMapper = new TypeMapper(HBSpatialExtension.getDefaultSpatialDialect().getDbGeometryTypeName());
+    public Document map(Connection conn) throws SQLException {
         DatabaseMetaData dmd = conn.getMetaData();
-        FeatureMapper fMapper = new FeatureMapper(naming, typeMapper);
-        FeatureClassGenerator fGenerator = new FeatureClassGenerator(PACKAGE_NAME, naming);
+        FeatureMapper fMapper = new FeatureMapper(naming(), typeMapper());
+        FeatureClassGenerator fGenerator = new FeatureClassGenerator(packageName(), naming());
 
-        for (String tableName : tableNames) {
-            TableName table = new TableName(catalog, schema, tableName);
-            if (tableClassInfoMap.get(table) != null) {
-                logger.info("Class info for table " + tableName + " in catalog/schema " + catalog + "/" + schema + " has already been mapped.");
-                continue;
-            }
-            logger.info("Generating class info for table " + tableName + " in catalog/schema " + catalog + "/" + schema);
+        for (TableRef tableRef : tableRefs()) {
+            if (isAlreadyMapped(tableRef)) continue;
+            LOGGER.info("Generating class info for table " + tableRef);
             ClassInfo cInfo;
             try {
-                cInfo = fMapper.createClassInfo(catalog, schema, tableName, dmd);
-                logger.info("Generating class " + cInfo.getClassName() + " for table " + tableName);
+                cInfo = fMapper.createClassInfo(tableConfig(tableRef), dmd);
+                LOGGER.info("Generating class " + cInfo.getClassName() + " for table " + tableRef);
                 Class<?> clazz = fGenerator.generate(cInfo);
-                tableClassMap.put(table, clazz);
-                tableClassInfoMap.put(table, cInfo);
+                tableClassMap.put(tableRef, clazz);
+                tableClassInfoMap.put(tableRef, cInfo);
 
             } catch (TableNotFoundException e) {
-                logger.warn(e.getMessage());
-            } catch (MissingIdentifierException e) {
-                logger.warn(e.getMessage());
+                LOGGER.warn(e.getMessage());
             }
         }
-        logger.info("Generating Hibernate Mapping file");
-        MappingsGenerator mappingGenerator = new MappingsGenerator(PACKAGE_NAME);
-        try {
-            mappingGenerator.load(tableClassInfoMap.values(), schema);
-        } catch (MissingIdentifierException e) {
-            throw new RuntimeException(e);
-        }
+        LOGGER.info("Generating Hibernate Mapping file");
+        MappingsGenerator mappingGenerator = new MappingsGenerator(packageName());
+
+        mappingGenerator.load(tableClassInfoMap);
         return mappingGenerator.getMappingsDoc();
+    }
+
+    private boolean isAlreadyMapped(TableRef tableRef) {
+        if (tableClassInfoMap.get(tableRef) != null) {
+            LOGGER.info("Class info for table " + tableRef + " has already been mapped.");
+            return true;
+        }
+        return false;
     }
 
     /**
      * Returns the <code>Class</code> object to which the specified table is mapped
      *
-     * @param catalog   catalog of the table
-     * @param schema    schema of the table
-     * @param tableName name of the table
-     * @return class to which the table specified by the arguments is mapped
+     * @tableRef the <code>TableRef</code>
+     * @return class to which the table specified by the argument is mapped
      */
-    public static Class<?> getClass(String catalog, String schema, String tableName) {
-        TableName tbn = new TableName(catalog, schema, tableName);
-        return tableClassMap.get(tbn);
+    public Class<?> getClass(TableRef tableRef) {
+        return tableClassMap.get(tableRef);
     }
 
     /**
@@ -115,14 +110,10 @@ public class AutoMapper {
      * @return a List of mapped tables. Each table is represented by a String array with the first
      *         component the catalog, the second the schema, and the third the table name.
      */
-    public static List<String[]> getMappedTables() {
-        List<String[]> list = new ArrayList<String[]>();
-        for (TableName tbn : tableClassMap.keySet()) {
-            String[] sa = new String[3];
-            sa[0] = tbn.catalog;
-            sa[1] = tbn.schema;
-            sa[2] = tbn.tableName;
-            list.add(sa);
+    public List<TableRef> getMappedTables() {
+        List<TableRef> list = new ArrayList<TableRef>();
+        for (TableRef tbn : tableClassMap.keySet()) {
+            list.add(tbn);
         }
         return list;
     }
@@ -130,13 +121,11 @@ public class AutoMapper {
     /**
      * Returns the attribute names of the class to with the specified table is mapped
      *
-     * @param catalog   catalog of the table
-     * @param schema    schema of the table
-     * @param tableName name of the table
+     * @param tableRef
      * @return list of attribute (field) names of the class that corresponds with the table identified by the arguments
      */
-    public static List<String> getAttributes(String catalog, String schema, String tableName) {
-        List<AttributeInfo> attributes = getAttributeInfos(catalog, schema, tableName);
+    public List<String> getAttributes(TableRef tableRef) {
+        List<AttributeInfo> attributes = getAttributeInfos(tableRef);
         List<String> result = new ArrayList<String>();
         for (AttributeInfo attributeInfo : attributes) {
             result.add(attributeInfo.getFieldName());
@@ -144,9 +133,8 @@ public class AutoMapper {
         return result;
     }
 
-    private static List<AttributeInfo> getAttributeInfos(String catalog, String schema, String tableName) {
-        TableName tbn = new TableName(catalog, schema, tableName);
-        ClassInfo cInfo = tableClassInfoMap.get(tbn);
+    private List<AttributeInfo> getAttributeInfos(TableRef tableRef) {
+        ClassInfo cInfo = tableClassInfoMap.get(tableRef);
         if (cInfo == null) return new ArrayList<AttributeInfo>();
         return cInfo.getAttributes();
     }
@@ -154,123 +142,77 @@ public class AutoMapper {
     /**
      * Returns the Identifier attribute
      *
-     * @param catalog   catalog of the table
-     * @param schema    schema of the table
-     * @param tableName name of the table
+     * @param tableRef
      * @return the attribute name which functions as a unique identifier for the objects corresponding
      * to rows in the specified table
-     * @throws MissingIdentifierException when no Identifier property is available
      */
-    public static String getIdAttribute(String catalog, String schema, String tableName) throws MissingIdentifierException {
-        TableName tbn = new TableName(catalog, schema, tableName);
-        ClassInfo cInfo = tableClassInfoMap.get(tbn);
+    public String getIdAttribute(TableRef tableRef) {
+        ClassInfo cInfo = tableClassInfoMap.get(tableRef);
         return cInfo.getIdAttribute().getFieldName();
     }
 
     /**
      * Returns the (default) <code>Geometry</code>-valued attribute
      *
-     * @param catalog   catalog of the table
-     * @param schema    schema of the table
-     * @param tableName name of the table
      * @return the name of the <code>Geometry</code>-valued attribute
-     * @throws GeometryNotFoundException when no <code>Geometry</code>-valued property is available
      */
-    public static String getGeometryAttribute(String catalog, String schema, String tableName) throws GeometryNotFoundException {
-        TableName tbn = new TableName(catalog, schema, tableName);
-        ClassInfo cInfo = tableClassInfoMap.get(tbn);
-        return cInfo.getGeomAttribute().getFieldName();
+    public String getGeometryAttribute(TableRef tableRef) {
+        ClassInfo cInfo = tableClassInfoMap.get(tableRef);
+        AttributeInfo geomAttribute = cInfo.getGeomAttribute();
+        return geomAttribute != null ? geomAttribute.getFieldName() : null;
     }
 
     /**
      * Returns the name of the setter-method for the attribute
      *
-     * @param catalog   catalog of the table
-     * @param schema    schema of the table
-     * @param tableName name of the table
+     * @param tableRef
      * @param attribute name of the attribute of the class to which this class is mapped
      * @return the name of the setter-method of the attribute specified by the arguments
      */
-    public static String getAttributeSetterName(String catalog, String schema, String tableName, String attribute) {
-        getAttributeInfo(catalog, schema, tableName, attribute);
-        return naming.createSetterName(attribute);
+    public String getAttributeSetterName(TableRef tableRef, String attribute) {
+        getAttributeInfo(tableRef, attribute);
+        return naming().createSetterName(attribute);
     }
 
     /**
      * Returns the name of the getter-method for the attribute
      *
-     * @param catalog   catalog of the table
-     * @param schema    schema of the table
-     * @param tableName name of the table
+     * @param tableRef
      * @param attribute name of the attribute of the class to which this class is mapped
      * @return the name of the getter-method of the attribute specified by the arguments
      *  */
-    public static String getAttributeGetterName(String catalog, String schema, String tableName, String attribute) {
-        getAttributeInfo(catalog, schema, tableName, attribute);
-        return naming.createGetterName(attribute);
+    public String getAttributeGetterName(TableRef tableRef, String attribute) {
+        getAttributeInfo(tableRef, attribute);
+        return naming().createGetterName(attribute);
     }
 
-    private static AttributeInfo getAttributeInfo(String catalog, String schema, String tableName, String attribute) {
+    private AttributeInfo getAttributeInfo(TableRef tableRef, String attribute) {
         if (attribute == null) throw new IllegalArgumentException("Null attribute received.");
-        for (AttributeInfo candidate : getAttributeInfos(catalog, schema, tableName)) {
+        for (AttributeInfo candidate : getAttributeInfos(tableRef)) {
             if (candidate.getFieldName().equals(attribute)) {
                 return candidate;
             }
         }
-        throw new IllegalArgumentException(String.format("%s is not an attribute of the class to which table %s is mapped.", attribute, tableName));
+        throw new IllegalArgumentException(String.format("%s is not an attribute of the class to which table %s is mapped.", attribute, tableRef));
     }
 
-    private static class TableName {
-        String catalog;
-        String schema;
-        String tableName;
+    private NamingStrategy naming(){
+        return this.config.getNaming();
+    }
 
-        private TableName(String catalog, String schema, String tableName) {
-            this.catalog = catalog;
-            this.schema = schema;
-            this.tableName = tableName;
-        }
+    private TypeMapper typeMapper(){
+        return this.config.getTypeMapper();
+    }
 
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result
-                    + ((catalog == null) ? 0 : catalog.hashCode());
-            result = prime * result
-                    + ((schema == null) ? 0 : schema.hashCode());
-            result = prime * result
-                    + ((tableName == null) ? 0 : tableName.hashCode());
-            return result;
-        }
+    private String packageName() {
+        return this.config.getPackageName();
+    }
 
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (!(obj instanceof TableName))
-                return false;
-            TableName other = (TableName) obj;
-            if (catalog == null) {
-                if (other.catalog != null)
-                    return false;
-            } else if (!catalog.equals(other.catalog))
-                return false;
-            if (schema == null) {
-                if (other.schema != null)
-                    return false;
-            } else if (!schema.equals(other.schema))
-                return false;
-            if (tableName == null) {
-                if (other.tableName != null)
-                    return false;
-            } else if (!tableName.equals(other.tableName))
-                return false;
-            return true;
-        }
+    private TableConfig tableConfig(TableRef tableRef) {
+        return this.config.getTableConfig(tableRef);
+    }
 
-
+    private Collection<TableRef> tableRefs(){
+        return this.config.getTableRefs();
     }
 }

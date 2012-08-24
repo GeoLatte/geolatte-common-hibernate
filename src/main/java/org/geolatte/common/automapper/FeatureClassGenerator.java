@@ -56,7 +56,6 @@ public class FeatureClassGenerator {
 			pojo.detach();
 			return clazz;
 		} catch (CannotCompileException e){
-			e.printStackTrace(); //TODO -- provide proper logging
 			throw new RuntimeException("Problem generating class for table " + classInfo.getTableName(), e);
 		}
 		

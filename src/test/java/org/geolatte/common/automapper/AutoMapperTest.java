@@ -23,19 +23,18 @@ package org.geolatte.common.automapper;
 
 import org.dom4j.Document;
 import org.geolatte.common.testDb.TestDb;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
-import static org.geolatte.common.testDb.TestDb.cleanDatabase;
-import static org.geolatte.common.testDb.TestDb.doWithinConnection;
-import static org.geolatte.common.testDb.TestDb.initGeoDB;
+import static org.geolatte.common.testDb.TestDb.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -44,42 +43,58 @@ import static org.junit.Assert.assertEquals;
  */
 public class AutoMapperTest {
 
-    final private static String sql1 = "create table testautomap (id integer primary key, name varchar, num int, price double, geometry geometry)";
-
-
+    private static Logger LOGGER = LoggerFactory.getLogger(AutoMapperTest.class);
     private static TestDb server;
-
-    private static Document mapping = null;
 
     @BeforeClass
     static public void before() throws SQLException {
         server = new TestDb();
         initGeoDB();
-        doWithinConnection(sql1);
-        final List<String> tableNames = new ArrayList<String>();
-        tableNames.add("TESTAUTOMAP");
-        mapping = (Document)server.doWithinConnection (
-                new TestDb.DbOp (){
-                    @Override
-                    public Object execute(Connection conn) throws SQLException {
-                        return AutoMapper.map(conn, null, null, tableNames);
-                    }
-                }
-        );
-
     }
 
     @Test
-    public void test() throws GeometryNotFoundException {
-        assertNotNull(mapping);
-        System.out.println(mapping.asXML());
-        assertEquals("geometry", AutoMapper.getGeometryAttribute(null, null, "testautomap"));
+    public void test() throws SQLException {
+        String sql1 = "create table testautomap (id integer primary key, name varchar, num int, price double, geometry geometry)";
+        doWithinConnection(sql1);
 
+        AutoMapConfig cfg = new AutoMapConfig(new TypeMapper("BLOB"));
+        TableRef tblRef = TableRef.valueOf("TESTAUTOMAP");
+        cfg.addTable(tblRef);
+
+        final AutoMapper autoMapper = new AutoMapper(cfg);
+        Document mapping = runAutoMapper(autoMapper);
+        assertNotNull(mapping);
+        LOGGER.debug("Mapping file:\n" + mapping.asXML());
+        assertEquals(cfg.getPackageName(), mapping.selectSingleNode("//hibernate-mapping/@package").getText());
+        assertEquals(cfg.getPackageName() + ".Testautomap", autoMapper.getClass(TableRef.valueOf("TESTAUTOMAP")).getCanonicalName());
+        assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
+        assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
+        assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
+        assertEquals("integer", mapping.selectSingleNode("//hibernate-mapping/class/id/@type").getText());
+        assertEquals("GEOMETRY", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@column").getText());
+        assertEquals("org.hibernatespatial.GeometryUserType", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@type").getText());
+        assertEquals("geometry", autoMapper.getGeometryAttribute(TableRef.valueOf("TESTAUTOMAP")));
+        assertEquals("id", autoMapper.getIdAttribute(TableRef.valueOf("TESTAUTOMAP")));
+    }
+
+    private Document runAutoMapper(final AutoMapper autoMapper) throws SQLException {
+        return (Document)server.doWithinConnection (
+                    new DbOp (){
+                        @Override
+                        public Object execute(Connection conn) throws SQLException {
+                            return autoMapper.map(conn);
+                        }
+                    }
+            );
+    }
+
+    @After
+    public void cleanUp() throws SQLException {
+        cleanDatabase();
     }
 
     @AfterClass
-    public static void after() throws SQLException {
-        cleanDatabase();
+    public static void after() {
         server.stop();
     }
 

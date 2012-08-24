@@ -36,22 +36,22 @@ public class ClassInfo {
 		this.tableName = tableName;
 	}
 
-	public AttributeInfo getIdAttribute() throws MissingIdentifierException {
+	public AttributeInfo getIdAttribute() {
 		for (AttributeInfo ai : getAttributes()) {
 			if (ai.isIdentifier()) {
 				return ai;
 			}
 		}
-		throw new MissingIdentifierException();
+		return null;
 	}
 
-	public AttributeInfo getGeomAttribute() throws GeometryNotFoundException {
+	public AttributeInfo getGeomAttribute() {
 		for (AttributeInfo ai : getAttributes()) {
 			if (ai.isGeometry()) {
 				return ai;
 			}
 		}
-		throw new GeometryNotFoundException();
+		return null;
 	}
 
 	public List<AttributeInfo> getAttributes() {

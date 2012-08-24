@@ -53,7 +53,7 @@ public class TypeMapper {
 
 	private CtClass ctGeom;
 
-	// TODO -- create entires for all constants defined in java.sql.Types
+	// TODO -- create entries for all constants defined in java.sql.Types
 	public TypeMapper(String dbGeomType) {
 
 		// first set the type to use for the geometry

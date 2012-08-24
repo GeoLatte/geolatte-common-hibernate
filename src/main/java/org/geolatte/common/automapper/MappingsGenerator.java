@@ -28,7 +28,7 @@ import org.dom4j.io.XMLWriter;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
+import java.util.Map;
 
 /**
  * This class creates a Hibernate mapping file for a list of tables.
@@ -56,8 +56,7 @@ public class MappingsGenerator {
 		return this.mappingDoc;
 	}
 
-	public void load(Collection<ClassInfo> mappedClasses, String schema)
-			throws MissingIdentifierException {
+	public void load(Map<TableRef,ClassInfo> mapping) {
 
 		this.mappingDoc = DocumentHelper.createDocument();
 		this.mappingDoc.addDocType("hibernate-mapping",
@@ -65,25 +64,24 @@ public class MappingsGenerator {
 				"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd");
 		Element root = this.mappingDoc.addElement("hibernate-mapping");
     	root.addAttribute("package", this.packageName);
-        if (schema != null){
-            root.addAttribute("schema", schema);
-        }
-		for (ClassInfo classInfo: mappedClasses) {
-			addTableElement(root, classInfo);
+		for (Map.Entry<TableRef, ClassInfo> entry : mapping.entrySet()) {
+			addTableElement(root, entry.getKey(), entry.getValue());
 		}
 	}
 
-	private void addTableElement(Element root, ClassInfo classInfo)
-			throws MissingIdentifierException {
+	private void addTableElement(Element root, TableRef tableRef, ClassInfo classInfo) {
 		Element tableEl = root.addElement("class");
 		tableEl.addAttribute("name", classInfo.getClassName());
 		tableEl.addAttribute("table", classInfo.getTableName());
-		AttributeInfo idAttr = classInfo.getIdAttribute();
-		addColElement(tableEl, idAttr);
+        if (tableRef.getCatalog() != null) {
+            tableEl.addAttribute("catalog", tableRef.getCatalog());
+        }
+        if (tableRef.getSchema() != null) {
+            tableEl.addAttribute("schema", tableRef.getSchema());
+        }
+//		addColElement(tableEl, classInfo.getIdAttribute());
 		for (AttributeInfo ai : classInfo.getAttributes()) {
-			if (!ai.isIdentifier()) {
-				addColElement(tableEl, ai);
-			}
+            addColElement(tableEl, ai);
 		}
 
 	}
@@ -100,4 +98,6 @@ public class MappingsGenerator {
 		colEl.addAttribute("type", ai.getHibernateType());
 		return;
 	}
+
+
 }

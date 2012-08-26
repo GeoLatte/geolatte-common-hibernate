@@ -18,24 +18,18 @@
  * Qmino bvba - Romeinsestraat 18 - 3001 Heverlee  (http://www.qmino.com)
  * Geovise bvba - Generaal Eisenhowerlei 9 - 2140 Antwerpen (http://www.geovise.com)
  */
+
 package org.geolatte.common.automapper;
 
 /**
- * This Exception is thrown when a table cannot be found in the metadata.
+ * A Strategy to determine whether a specific table column is of type Geometry.
  *
  * @author Karel Maesen, Geovise BVBA
+ *         creation-date: 8/26/12
  */
-public class TableNotFoundException extends Exception {
+interface GeometryColumnTest {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+    boolean isGeometry(Attribute info);
 
-    private static final String MSG = "Table not found: ";
-
-    public TableNotFoundException(TableRef tableRef) {
-        super(MSG + tableRef.toString());
-    }
 
 }

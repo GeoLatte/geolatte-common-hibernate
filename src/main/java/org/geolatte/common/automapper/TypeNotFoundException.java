@@ -27,30 +27,30 @@ package org.geolatte.common.automapper;
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: Jun 24, 2010
  */
- public class TypeNotFoundException extends Exception {
+public class TypeNotFoundException extends Exception {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	private static final String basemsg = "Type not found";
+    private static final String basemsg = "Type not found";
 
-	public TypeNotFoundException() {
-		super(basemsg);
-	}
+    public TypeNotFoundException() {
+        super(basemsg);
+    }
 
-	public TypeNotFoundException(String msg) {
-		super(basemsg + ":" + msg);
-	}
+    public TypeNotFoundException(String msg) {
+        super(basemsg + ":" + msg);
+    }
 
-	public TypeNotFoundException(Throwable cause) {
-		super(cause);
-	}
+    public TypeNotFoundException(Throwable cause) {
+        super(cause);
+    }
 
-	public TypeNotFoundException(String msg, Throwable cause) {
-		super(basemsg + ":" + msg, cause);
-	}
+    public TypeNotFoundException(String msg, Throwable cause) {
+        super(basemsg + ":" + msg, cause);
+    }
 
 }
 

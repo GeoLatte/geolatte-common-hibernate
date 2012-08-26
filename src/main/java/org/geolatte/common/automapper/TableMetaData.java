@@ -20,22 +20,29 @@
  */
 package org.geolatte.common.automapper;
 
-/**
- * This Exception is thrown when a table cannot be found in the metadata.
- *
- * @author Karel Maesen, Geovise BVBA
- */
-public class TableNotFoundException extends Exception {
+import java.util.ArrayList;
+import java.util.List;
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+class TableMetaData {
 
-    private static final String MSG = "Table not found: ";
+    private final TableRef tableRef;
 
-    public TableNotFoundException(TableRef tableRef) {
-        super(MSG + tableRef.toString());
+    private final List<Attribute> attributes = new ArrayList<Attribute>();
+
+    public TableMetaData(TableRef tableRef) {
+        this.tableRef = tableRef;
+    }
+
+    public List<Attribute> getAttributes() {
+        return attributes;
+    }
+
+    public TableRef getTableRef() {
+        return tableRef;
+    }
+
+    void addAttribute(Attribute ai) {
+        this.attributes.add(ai);
     }
 
 }

@@ -33,33 +33,34 @@ public class TableConfig {
     final private TableRef tableRef;
     private String idColumn;
     private String geomColumn;
-    private List<String> excludeCols = new ArrayList<String>();
-    private List<String> includeCols = new ArrayList<String>();
+    final private List<String> excludeCols = new ArrayList<String>();
+    final private List<String> includeCols = new ArrayList<String>();
 
-    public static class Builder{
+    public static class Builder {
 
         public static TableConfig emptyConfig(TableRef tableRef) {
             return new TableConfig(tableRef);
         }
 
         final private TableConfig underConstruction;
+
         Builder(TableRef tableRef) {
             underConstruction = new TableConfig(tableRef);
         }
 
-        public Builder withGeometry(String geomColumn){
+        public Builder withGeometry(String geomColumn) {
             underConstruction.geomColumn = geomColumn;
             return this;
         }
 
-        public Builder withId(String idColumn){
+        public Builder withId(String idColumn) {
             underConstruction.idColumn = idColumn;
             return this;
         }
 
         public Builder exclude(String excluded) {
-                underConstruction.excludeCols.add(excluded);
-                return this;
+            underConstruction.excludeCols.add(excluded);
+            return this;
         }
 
         public Builder include(String included) {
@@ -73,7 +74,7 @@ public class TableConfig {
     }
 
     private TableConfig(TableRef tableRef) {
-        if (tableRef == null ) throw new IllegalArgumentException("TableRef cannot be null.)");
+        if (tableRef == null) throw new IllegalArgumentException("TableRef cannot be null.)");
         this.tableRef = tableRef;
     }
 
@@ -81,7 +82,7 @@ public class TableConfig {
         return tableRef.getTableName();
     }
 
-    public String getCatalog(){
+    public String getCatalog() {
         return tableRef.getCatalog();
     }
 
@@ -101,11 +102,11 @@ public class TableConfig {
         return geomColumn;
     }
 
-    public List<String> getIncludedColumns(){
+    public List<String> getIncludedColumns() {
         return includeCols;
     }
 
-    public List<String> getExcludedColumns(){
+    public List<String> getExcludedColumns() {
         return excludeCols;
     }
 

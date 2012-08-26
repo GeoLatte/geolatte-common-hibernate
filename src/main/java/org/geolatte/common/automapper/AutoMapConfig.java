@@ -26,24 +26,39 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * The configuration for the
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/23/12
  */
 public class AutoMapConfig {
 
-    final private static String DEFAULT_PACKAGE_NAME = "org.geolatte.common.features.generated";
+    /**
+     * The default package name
+     */
+    final public static String DEFAULT_PACKAGE_NAME = "org.geolatte.common.features.generated";
 
     final private String packageName;
     final private NamingStrategy naming;
     final private TypeMapper typeMapper;
     final private Map<TableRef, TableConfig> tableConfigs = new HashMap<TableRef, TableConfig>();
 
+    /**
+     * Constructs an instance
+     * @param packageName the package name for all generated classes
+     * @param naming the <code>NamingStrategy</code> to use
+     * @param typeMapper the <code>TypeMapper</code> to use
+     */
     public AutoMapConfig(String packageName, NamingStrategy naming, TypeMapper typeMapper) {
         this.packageName = packageName;
         this.naming = naming;
         this.typeMapper = typeMapper;
     }
 
+    /**
+     * Constructs an instance with default package name and a simple naming strategy.
+     *
+     * @param typeMapper the <code>TypeMapper</code> instance to use.
+     */
     public AutoMapConfig(TypeMapper typeMapper) {
         this(DEFAULT_PACKAGE_NAME, new SimpleNamingStrategy(), typeMapper);
     }
@@ -70,7 +85,7 @@ public class AutoMapConfig {
     }
 
 
-    public TableConfig getTableConfig(TableRef tableRef){
+    public TableConfig getTableConfig(TableRef tableRef) {
         return tableConfigs.get(tableRef);
     }
 

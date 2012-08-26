@@ -23,26 +23,25 @@ package org.geolatte.common.automapper;
 
 /**
  * This Exception is thrown when the POJO Utility cannot locate a primary key.
- * 
+ *
  * @author Karel Maesen, Geovise BVBA
- * 
  */
 public class MissingIdentifierException extends Exception {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
 
-	private static final String basemsg = "No suitable identifier found in table";
+    private static final String basemsg = "No suitable identifier found in table";
 
 //	public MissingIdentifierException() {
 //		super(basemsg);
 //	}
 
-	public MissingIdentifierException(String msg) {
-		super(basemsg + ":" + msg);
-	}
+    public MissingIdentifierException(String msg) {
+        super(basemsg + ":" + msg);
+    }
 
 //	public MissingIdentifierException(Throwable cause) {
 //		super(cause);

@@ -21,7 +21,6 @@
 
 package org.geolatte.common.automapper;
 
-import org.hibernatespatial.GeometryUserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,28 +28,26 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class FeatureMapper {
+class TableMetaDataReader {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(FeatureMapper.class);
+    final private static Logger LOGGER = LoggerFactory.getLogger(TableMetaDataReader.class);
 
-    private final NamingStrategy naming;
-    private final TypeMapper typeMapper;
+    final private GeometryColumnTest geomTest;
 
-    public FeatureMapper(NamingStrategy naming, TypeMapper typeMapper) {
-        this.naming = naming;
-        this.typeMapper = typeMapper;
+    public TableMetaDataReader(GeometryColumnTest geomTest) {
+        this.geomTest = geomTest;
     }
 
-    public ClassInfo createClassInfo(TableConfig cfg, DatabaseMetaData dmd) throws TableNotFoundException, MissingIdentifierException {
-        String className = naming.createClassName(cfg.getTableName());
-        ClassInfo cInfo = new ClassInfo(cfg.getTableName(), className);
-        readColums(cfg, dmd, cInfo);
-        setIdentifier(cfg, dmd, cInfo);
-        setGeometry(cfg, cInfo);
-        return cInfo;
+    public TableMetaData read(TableConfig cfg, DatabaseMetaData dmd) throws TableNotFoundException, MissingIdentifierException {
+        LOGGER.info("Reading metadata for table " + cfg.getTableName());
+        TableMetaData metaData = new TableMetaData(cfg.getTableRef());
+        readColums(cfg, dmd, metaData);
+        setIdentifier(cfg, dmd, metaData);
+        setGeometry(cfg, metaData);
+        return metaData;
     }
 
-    private void setIdentifier(TableConfig cfg, DatabaseMetaData dmd, ClassInfo cInfo) throws MissingIdentifierException {
+    private void setIdentifier(TableConfig cfg, DatabaseMetaData dmd, TableMetaData cInfo) throws MissingIdentifierException {
         String configuredColumn = cfg.getIdColumn();
         if (configuredColumn != null) {
             setAsIdentifier(cInfo, cfg.getIdColumn());
@@ -64,7 +61,7 @@ public class FeatureMapper {
         throw new MissingIdentifierException(cfg.getTableRef().toString());
     }
 
-    private void setGeometry(TableConfig cfg, ClassInfo cInfo) throws MissingIdentifierException {
+    private void setGeometry(TableConfig cfg, TableMetaData cInfo) throws MissingIdentifierException {
         String configuredColumn = cfg.getGeomColumn();
         if (configuredColumn != null) {
             setAsGeometry(cInfo, cfg.getIdColumn());
@@ -78,11 +75,9 @@ public class FeatureMapper {
         throw new MissingIdentifierException(cfg.getTableRef().toString());
     }
 
-    private String determineGeometry(TableRef tableRef, ClassInfo cInfo) {
-        for (AttributeInfo ai : cInfo.getAttributes()) {
-            if (ai.getHibernateType().equalsIgnoreCase(GeometryUserType.class.getCanonicalName())) {
-                return ai.getColumnName();
-            }
+    private String determineGeometry(TableRef tableRef, TableMetaData cInfo) {
+        for (Attribute ai : cInfo.getAttributes()) {
+            if (this.geomTest.isGeometry(ai)) return ai.getColumnName();
         }
         return null;
     }
@@ -100,7 +95,7 @@ public class FeatureMapper {
             throw new RuntimeException(e);
         } finally {
             try {
-                rs.close();
+                if (rs != null) rs.close();
             } catch (SQLException e) {
                 //do nothing
             }
@@ -108,7 +103,7 @@ public class FeatureMapper {
         return pkn;
     }
 
-    private void readColums(TableConfig cfg, DatabaseMetaData dmd, ClassInfo cInfo) throws TableNotFoundException {
+    private void readColums(TableConfig cfg, DatabaseMetaData dmd, TableMetaData tableMetaData) throws TableNotFoundException {
         ResultSet rs = null;
         boolean empty = true;
         try {
@@ -118,13 +113,13 @@ public class FeatureMapper {
                 String colName = rs.getString("COLUMN_NAME");
                 String dbType = rs.getString("TYPE_NAME");
                 int javaType = rs.getInt("DATA_TYPE");
-                addAttribute(cInfo, colName, dbType, javaType);
+                addAttribute(tableMetaData, colName, dbType, javaType);
             }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         } finally {
             try {
-                rs.close();
+                if(rs != null) rs.close();
             } catch (SQLException e) {
                 // do nothing
             }
@@ -134,10 +129,10 @@ public class FeatureMapper {
         }
     }
 
-    private boolean setAsIdentifier(ClassInfo cInfo, String column) {
-        for (AttributeInfo ai : cInfo.getAttributes()) {
+    private boolean setAsIdentifier(TableMetaData metaData, String column) {
+        for (Attribute ai : metaData.getAttributes()) {
             if (ai.getColumnName().equals(column)) {
-                ai.setIdentifier(true);
+                ai.setAsIdentifier(true);
                 return true;
             }
         }
@@ -146,10 +141,10 @@ public class FeatureMapper {
     }
 
 
-    private boolean setAsGeometry(ClassInfo cInfo, String column) {
-        for (AttributeInfo ai : cInfo.getAttributes()) {
+    private boolean setAsGeometry(TableMetaData metaData, String column) {
+        for (Attribute ai : metaData.getAttributes()) {
             if (ai.getColumnName().equals(column)) {
-                ai.setGeometry(true);
+                ai.setAsGeometry(true);
                 return true;
             }
         }
@@ -158,19 +153,8 @@ public class FeatureMapper {
     }
 
 
-    private void addAttribute(ClassInfo cInfo, String colName, String dbType, int javaType) {
-        String hibernateType = null;
-        try {
-            hibernateType = typeMapper.getHibernateType(dbType, javaType);
-            AttributeInfo ai = new AttributeInfo();
-            ai.setColumnName(colName);
-            ai.setFieldName(naming.createPropertyName(colName));
-            ai.setHibernateType(hibernateType);
-            ai.setCtClass(typeMapper.getCtClass(dbType, javaType));
-            cInfo.addAttribute(ai);
-        } catch (TypeNotFoundException e) {
-            LOGGER.warn("No property generated for attribute " + colName + ": " + e.getMessage());
-        }
+    private void addAttribute(TableMetaData metaData, String colName, String dbType, int javaType) {
+        metaData.addAttribute(new Attribute(colName, javaType, dbType));
     }
 
 }

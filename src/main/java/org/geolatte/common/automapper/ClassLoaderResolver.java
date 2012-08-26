@@ -27,7 +27,6 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * Creates a ClassLoader (using reflection).
  *
-
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/26/12
  */
@@ -46,7 +45,7 @@ public class ClassLoaderResolver {
         newInstance(null);
     }
 
-    private Class<? extends ClassLoader> classLoaderClass(String classLoaderClassName)  {
+    private Class<? extends ClassLoader> classLoaderClass(String classLoaderClassName) {
         Class<?> clClass;
         try {
             clClass = Class.forName(classLoaderClassName);
@@ -55,16 +54,16 @@ public class ClassLoaderResolver {
                     String.format("ClassLoader %s not on classpath.", classLoaderClassName), e);
         }
         if (ClassLoader.class.isAssignableFrom(clClass)) {
-                return (Class<? extends ClassLoader>) clClass;
+            return (Class<? extends ClassLoader>) clClass;
         }
         throw new IllegalArgumentException(String.format("Class %s is not a subclass of ClassLoader", classLoaderClassName));
     }
 
-    private Constructor findConstructor (Class<? extends ClassLoader> clClass) {
+    private Constructor findConstructor(Class<? extends ClassLoader> clClass) {
         for (Constructor<?> constructor : clClass.getDeclaredConstructors()) {
             if (constructor.getParameterTypes().length == 1 &&
                     ClassLoader.class.isAssignableFrom(constructor.getParameterTypes()[0])) {
-                    return constructor;
+                return constructor;
             }
         }
         throw new IllegalStateException("No single-parameter constructor found with type ClassLoader in class "

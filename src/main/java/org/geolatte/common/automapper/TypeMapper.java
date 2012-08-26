@@ -88,8 +88,8 @@ public class TypeMapper {
             entries.add(new TMEntry(Types.TIMESTAMP, "timestamp", pool.get("java.util.Date")));
             entries.add(new TMEntry(Types.TIME, "time", pool.get("java.util.Date")));
             entries.add(new TMEntry(Types.TINYINT, "byte", pool.get("java.lang.Byte")));
-            entries.add(new TMEntry(Types.VARCHAR, "binary", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.VARCHAR, "string", pool.get("byte[]")));
+            entries.add(new TMEntry(Types.VARCHAR, "string", pool.get("java.lang.String")));
+            entries.add(new TMEntry(Types.VARBINARY, "binary", pool.get("byte[]")));
         } catch (NotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -120,33 +120,6 @@ public class TypeMapper {
         }
         throw new TypeNotFoundException(dbType);
 
-    }
-
-    public int[] getMappedSQLTypes() {
-        int l = this.entries.size();
-        int[] types = new int[l];
-        for (int i = 0; i < this.entries.size(); i++) {
-            types[i] = this.entries.get(i).javaType;
-        }
-        return types;
-    }
-
-    public void addTypeMapping(int sqlType, String hibernateType,
-                               CtClass ctClass) {
-        this.entries.add(new TMEntry(sqlType, hibernateType, ctClass));
-    }
-
-    public void removeTypeMapping(int sqlType) {
-        TMEntry tm = null;
-        for (TMEntry t : this.entries) {
-            if (t.javaType == sqlType) {
-                tm = t;
-                break;
-            }
-        }
-        if (tm != null) {
-            this.entries.remove(tm);
-        }
     }
 
     private static class TMEntry {

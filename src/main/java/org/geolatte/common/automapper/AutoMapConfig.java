@@ -26,14 +26,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The configuration for the
+ * The configuration for an <code>AutoMapper</code>
+ *
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/23/12
  */
 public class AutoMapConfig {
 
     /**
-     * The default package name
+     * The default package name for the generated classes.
      */
     final public static String DEFAULT_PACKAGE_NAME = "org.geolatte.common.features.generated";
 
@@ -55,7 +56,7 @@ public class AutoMapConfig {
     }
 
     /**
-     * Constructs an instance with default package name and a simple naming strategy.
+     * Constructs an instance with the default package name and a <code>SimpleNamingStrategy</code>
      *
      * @param typeMapper the <code>TypeMapper</code> instance to use.
      */
@@ -64,31 +65,69 @@ public class AutoMapConfig {
     }
 
 
+    /**
+     * Returns the package name of the package that contains the generated classes.
+     *
+     * @return the package name of the package that contains the generated classes.
+     */
     public String getPackageName() {
         return packageName;
     }
 
+    /**
+     * Returns the <code>NamingStrategy</code> to use for generating class and property names from table and column names.
+     *
+     * @return the <code>NamingStrategy</code> to use for generating class and property names from table and column names.
+     */
     public NamingStrategy getNaming() {
         return naming;
     }
 
+    /**
+     * Returns the <code>TypeMapper</code> to use during Class generation.
+     *
+     * @return the <code>TypeMapper</code> to use during Class generation.
+     */
     public TypeMapper getTypeMapper() {
         return typeMapper;
     }
 
+    /**
+     * Adds a <code>TableRef</code> to the configuration.
+     *
+     * <p>A default (empty) <code>TableConfig</code> will be be created and stored in the configuration.</p>
+     *
+     * @param tableRef a <code>TableRef</code> that identifies a table in the database.
+     */
     public void addTable(TableRef tableRef) {
         tableConfigs.put(tableRef, TableConfig.Builder.emptyConfig(tableRef));
     }
 
+    /**
+     * Adds a <code>TableConfig</code> to the configuration.
+     *
+     * @param config a <code>TableConfig</code> that instructs how to map the table to a generated class.
+     */
     public void addTableConfig(TableConfig config) {
         tableConfigs.put(config.getTableRef(), config);
     }
 
 
+    /**
+     * Returns the <code>TableConfig</code> corresponding to the specified <code>TableRef</code>
+     *
+     * @param tableRef the <code>TableRef</code> that identifies a table in the database.
+     * @return the <code>TableConfig</code> for the table identified by the parameter tableRef.
+     */
     public TableConfig getTableConfig(TableRef tableRef) {
         return tableConfigs.get(tableRef);
     }
 
+    /**
+     * Returns all <code>TableRef</code>s configured in this <code>AutoMapConfig</code>
+     *
+     * @return the <code>Collection</code> of all <code>TableRef</code>s configured in this <code>AutoMapConfig</code>
+     */
     public Collection<TableRef> getTableRefs() {
         return this.tableConfigs.keySet();
     }

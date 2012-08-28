@@ -30,8 +30,25 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
+ * Maps a set of tables to POJO Classes.
+ * <p>The central method of the <code>AutoMapper</code> is the <code>map()</code> method. It generates for each table
+ * listed in its <code>AutoMapConfig</code> a POJO Class, and generates a mapping document for Hibernate ORM that describes
+ * the mapping between the tables and the generated POJO Classes.</p>
+ * <p>A table can be mapped by the <code>AutoMapper</code> if the following condition is met: </p>
+ * <ul>
+ * <li>The table must have an identifier column; i.e. either the table has a primary key or the <code>
+ * TableConfig</code> for the table names a column that functions as identifier.</li>
+ * </ul>
+ * <p>It may happen that only a subset of the columns of a table can be mapped to class properties. This happens if: </p>
+ * <ul>
+ * <li>the <code>TypeMapper</code> cannot handle the column type</li>
+ * <li>the <code>NamingStrategy</code> generates a name for a property getter/setter that fails to compile</li>
+ * </ul>
+ *
  * @author Karel Maesen, Geovise BVBA
  */
+//TODO -- ensures that mapping is only once performed, and that methods that depend on having first run a mapping throw
+// IllegalStateException
 public class AutoMapper {
 
     protected final static Logger LOGGER = LoggerFactory.getLogger(AutoMapper.class);
@@ -57,14 +74,20 @@ public class AutoMapper {
     }
 
     /**
-     * Returns the Hibernate mapping document for the specified tables
+     * Returns the Hibernate mapping document that describes the mapping for all tables listed in the
+     * <code>AutoMapConfig</code> of this instance.
+     * <p/>
+     * <p>As a side-effect, the POJO classes corresponding to the tables are generated and loaded in the
+     * <code>ClassLoader</code> associated with this instance.</p>
      * <p/>
      * <p>To create the mapping, a <code>Connection</code> object must be
-     * provided to provide access to the specified tables.
-     * This connection will not be closed on return.</p>
+     * provided to provide access to the specified tables. This connection will <em>not</em> be closed on return.</p>
+     * <p/>
+     * <p>If for some reason the mapping operation for a table fails (e.g. no identifier), then a warning will be written
+     * to the log, and the operation will continue with the next table.</p>
      *
      * @param conn JDBC <code>Connection</code> used during mapping
-     * @return the XML mapping document that maps the tables specified by the catalog, schema and tablenames arguments.
+     * @return the XML mapping document that maps the tables listed in the <code>AutoMapConfig</code> of this instance.
      * @throws SQLException
      */
     public Document map(Connection conn) throws SQLException {
@@ -87,31 +110,42 @@ public class AutoMapper {
         return generateMappingXML();
     }
 
+    /**
+     * Returns the name of the package that holds all generated classes.
+     *
+     * @return the name of the package that holds all generated classes.
+     */
     public String getPackageName() {
         return this.config.getPackageName();
     }
 
     /**
-     * Returns the <code>Class</code> object to which the specified table is mapped
+     * Returns the <code>TableMapping</code> for the specified table.
      *
-     * @return class to which the table specified by the argument is mapped
-     * @tableRef the <code>TableRef</code>
+     * @return the <code>TableMapping</code> for the table specified by the <code>tableRef</code> parameter.
+     * @tableRef the <code>TableRef</code> that determines a table in the database
      */
     TableMapping getMappedClass(TableRef tableRef) {
         return mappedClasses.get(tableRef);
 
     }
 
+    /**
+     * Returns the <code>Class</code> object to which the specified table is mapped.
+     *
+     * @param tableRef the <code>TableRef</code> for the table
+     * @return the <code>Class</code> object generated from the table specifed by the <code>tableRef</code> parameter,
+     *         or null if no such class has been generated.
+     */
     public Class<?> getGeneratedClass(TableRef tableRef) {
         TableMapping mc = mappedClasses.get(tableRef);
         return mc == null ? null : mc.getGeneratedClass();
     }
 
     /**
-     * Returns the tables mapped by this automapper.
+     * Returns the <code>TableRef</code>s to all tables mapped by this <code>AutoMapper</code>.
      *
-     * @return a List of mapped tables. Each table is represented by a String array with the first
-     *         component the catalog, the second the schema, and the third the table name.
+     * @return the <code>TableRef</code>s to all the tables mapped by this <code>AutoMapper</code>.
      */
     public List<TableRef> getMappedTables() {
         List<TableRef> list = new ArrayList<TableRef>();
@@ -122,9 +156,11 @@ public class AutoMapper {
     }
 
     /**
-     * Returns the attribute metadata for the class to which the specified table is mapped
+     * Returns the <code>Attributes</code> of the POJO Class to which the specified table is mapped
+     * <p/>
+     * <p>If the specified table is not mapped by this instance, it returns an empty <code>List</code>.</p>
      *
-     * @param tableRef
+     * @param tableRef the <code>TableRef</code> for the table
      * @return list of attribute (field) names of the class that corresponds with the table identified by the arguments
      */
     public Collection<Attribute> getAttributes(TableRef tableRef) {
@@ -133,19 +169,12 @@ public class AutoMapper {
         return mc.getMappedAttributes();
     }
 
-    private Document generateMappingXML() {
-        LOGGER.info("Generating Hibernate Mapping file");
-        MappingsGenerator mappingGenerator = new MappingsGenerator();
-        mappingGenerator.load(this);
-        return mappingGenerator.getMappingsDoc();
-    }
-
     /**
      * Returns the name of the Identifier property
      *
-     * @param tableRef
-     * @return the attribute name which functions as a unique identifier for the objects corresponding
-     *         to rows in the specified table
+     * @param tableRef the <code>TableRef</code> for the table
+     * @return the name of the identifier attribute, or null if the table specified by the <code>tableRef</code>
+     *         parameter is not mapped
      */
     public String getIdAttribute(TableRef tableRef) {
         TableMapping tableMapping = mappedClasses.get(tableRef);
@@ -157,14 +186,19 @@ public class AutoMapper {
                 return tableMapping.getPropertyName(attribute);
             }
         }
-        return null;
+        //if we get here, then there is a programming error. All mapped classes should have an identifier because
+        //Hibernate needs one.
+        throw new IllegalStateException("A Mapped class with no Identifier found.");
     }
 
-
     /**
-     * Returns the (default) <code>Geometry</code>-valued attribute
+     * Returns the name of the primary geometry attribute.
+     * <p/>
+     * <p>For the meaning of Primary, see {@link Attribute#isGeometry()}.</p>
      *
-     * @return the name of the <code>Geometry</code>-valued attribute
+     * @param tableRef the <code>TableRef</code> for the table
+     * @return the name of the primary geometry attribute, or null if the table specified by the <code>tableRef</code>
+     *         parameter is not mapped or has no primary geometry.
      */
     public String getGeometryAttribute(TableRef tableRef) {
         TableMapping tableMapping = mappedClasses.get(tableRef);
@@ -177,6 +211,14 @@ public class AutoMapper {
             }
         }
         return null;
+    }
+
+
+    private Document generateMappingXML() {
+        LOGGER.info("Generating Hibernate Mapping file");
+        MappingsGenerator mappingGenerator = new MappingsGenerator();
+        mappingGenerator.load(this);
+        return mappingGenerator.getMappingsDoc();
     }
 
     private boolean isAlreadyMapped(TableRef tableRef) {

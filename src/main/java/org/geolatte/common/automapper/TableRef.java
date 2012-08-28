@@ -22,6 +22,8 @@
 package org.geolatte.common.automapper;
 
 /**
+ * Specifies a table in a database
+ *
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/23/12
  */
@@ -30,18 +32,43 @@ public class TableRef {
     final private String schema;
     final private String catalog;
 
+    /**
+     * Creates an instance from catalog,schema and table names
+     * @param catalog the table catalog
+     * @param schema the table schema
+     * @param tableName the table name
+     * @return a <code>TableRef</code> for the table identified by the specified catalog, schema and table name.
+     */
     public static TableRef valueOf(String catalog, String schema, String tableName) {
         return new TableRef(catalog, schema, tableName);
     }
 
+    /**
+     * Creates an instance from catalog and table names
+     * @param schema the table schema
+     * @param tableName the table name
+     * @return a <code>TableRef</code> for the table identified by the specified schema and table name.
+     */
     public static TableRef valueOf(String schema, String tableName) {
         return new TableRef(null, schema, tableName);
     }
 
+    /**
+     * Creates an instance from a table name
+     * @param tableName the table name
+     * @return a <code>TableRef</code> for the table identified by the specified schema and table name.
+     */
     public static TableRef valueOf(String tableName) {
         return new TableRef(null, null, tableName);
     }
 
+    /**
+     * Creates an instance from catalog,schema and table names
+     * @param catalog the table catalog
+     * @param schema the table schema
+     * @param tableName the table name
+     * @return a <code>TableRef</code> for the table identified by the specified catalog, schema and table name.
+     */
     public TableRef(String catalog, String schema, String tableName) {
         if (tableName == null) throw new IllegalArgumentException("TableName cannot be null.");
         this.tableName = tableName;
@@ -49,18 +76,37 @@ public class TableRef {
         this.catalog = catalog;
     }
 
+    /**
+     * Returns the table name component of this instance.
+     * @return the table name component of this instance.
+     */
     public String getTableName() {
         return tableName;
     }
 
+    /**
+     * Returns the schema name component this instance.
+     * @return the schema name component of this instance.
+     */
     public String getSchema() {
         return schema;
     }
 
+    /**
+     * Returns the catalog name component this instance.
+     * @return the catalog name component of this instance.
+     */
     public String getCatalog() {
         return catalog;
     }
 
+    /**
+     * Generates a representation of this instance.
+     *
+     * <p>It creates a string with structure: [<catalog>.][<schema>.]<table name></p>
+     *
+     * @return a string representation of this instance.
+     */
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (catalog != null) {

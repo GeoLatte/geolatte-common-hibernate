@@ -25,7 +25,7 @@ package org.geolatte.common.automapper;
  *
  * @author Karel Maesen, Geovise BVBA
  */
-public class TableNotFoundException extends Exception {
+class TableNotFoundException extends Exception {
 
     /**
      *

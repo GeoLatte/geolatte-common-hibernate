@@ -21,10 +21,11 @@
 package org.geolatte.common.automapper;
 
 /**
- * A <code>NamingStrategy</code> determines how to derive suitable class and
- * member names corresponding to database tables and columns.
+ * Determines how to derive class and
+ * member names from table and column names.
  *
  * @author Karel Maesen, Geovise BVBA (http://www.geovise.com/)
+ *
  */
 public interface NamingStrategy {
 
@@ -40,7 +41,7 @@ public interface NamingStrategy {
     /**
      * Create a valid name for a setter for the property
      *
-     * @param propertyName
+     * @param propertyName the Java property name
      * @return valid java identifier for a property setter
      */
     public String createSetterName(String propertyName);
@@ -48,7 +49,7 @@ public interface NamingStrategy {
     /**
      * Create a valid name for a getter for the property
      *
-     * @param propertyName
+     * @param propertyName the Java property name
      * @return valid java identifier for a property getter
      */
     public String createGetterName(String propertyName);
@@ -56,8 +57,8 @@ public interface NamingStrategy {
     /**
      * Create a valid name for a Java class based on the specified input.
      *
-     * @param tableRef the input name.
-     * @return a valid java identifier for a class.
+     * @param tableRef the <code>TableRef</code> for which to construct a name.
+     * @return a valid Java identifier for a class.
      */
     public String createClassName(TableRef tableRef);
 

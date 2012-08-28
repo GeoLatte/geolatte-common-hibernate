@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Configures how a database table is to be mapped to a POJO class.
+ *
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/23/12
  */
@@ -33,43 +35,106 @@ public class TableConfig {
     final private TableRef tableRef;
     private String idColumn;
     private String geomColumn;
+    //TODO -- this should be lists of regex's
     final private List<String> excludeCols = new ArrayList<String>();
     final private List<String> includeCols = new ArrayList<String>();
 
+    /**
+     * A builder for a <code>TableConfig</code>
+     */
     public static class Builder {
 
+        /**
+         * Creates an empty <code>TableConfig</code>, i.e. one with no information save to the <code>TableRef</code>.
+         * @param tableRef the <code>TableRef</code> for the created <code>TableConfig</code>.
+         * @return an empty <code>TableConfig</code> for the table specified by the <code>tableRef</code> parameter.
+         */
         public static TableConfig emptyConfig(TableRef tableRef) {
             return new TableConfig(tableRef);
         }
 
         final private TableConfig underConstruction;
 
-        Builder(TableRef tableRef) {
+        /**
+         * Constructs an instance of the specified table.
+         * @param tableRef the <code>TableRef</code> for the table for which a <code>TableConfig</code> is to be built.
+         */
+        public Builder(TableRef tableRef) {
             underConstruction = new TableConfig(tableRef);
         }
 
+        /**
+         * Sets the primary geometry column of the table.
+         *
+         * <p>For a definition of primary, see {@link Attribute#isGeometry()}.</p>
+         *
+         * <p>If this is not configured, the <code>AutoMapper</code> will select a random column of type <code>Geometry</code>.
+         *
+         * @param geomColumn the name of the geometry column
+         * @return this instance
+         */
         public Builder withGeometry(String geomColumn) {
             underConstruction.geomColumn = geomColumn;
             return this;
         }
 
+        /**
+         * Sets the identifier column of the table.
+         *
+         * <p>If this is not configured, the <code>AutoMapper</code> will select the primary key of the table</code>
+         *
+         * @param idColumn the name of the identifier column
+         * @return this instance
+         */
         public Builder withId(String idColumn) {
             underConstruction.idColumn = idColumn;
             return this;
         }
 
+        /**
+         * Excludes a column from the mapping process, i.e. no Class member will be generated for the specified column.
+         *
+         * <p>If a column is both included and excluded, the inclusion has priority.</p>
+         *
+         * @param excluded the name of the column in the table to exclude
+         * @return this instance.
+         */
         public Builder exclude(String excluded) {
             underConstruction.excludeCols.add(excluded);
             return this;
         }
 
+        /**
+         * Includes a column from the mapping process, i.e. a Class member will be generated for the specified column.
+         *
+         * <p>If a column is both included and excluded, the inclusion has priority.</p>
+         *
+         * @param included the name of the column in the table to include
+         * @return this instance.
+         */
         public Builder include(String included) {
             underConstruction.includeCols.add(included);
             return this;
         }
 
+        /**
+         * Returns the <code>TableConfig</code> that is built by this instance.
+         * @return the constructed <code>TableConfig</code>
+         */
         public TableConfig result() {
+            removeExcludedColsThatAreAlsoIncluded();
             return underConstruction;
+        }
+
+        //TODO -- write a unit test for this
+        private void removeExcludedColsThatAreAlsoIncluded() {
+            List<String> toRemove = new ArrayList<String>();
+            for (String excl: underConstruction.excludeCols){
+                if(underConstruction.includeCols.contains(excl)) {
+                    toRemove.add(excl);
+                }
+            }
+            underConstruction.excludeCols.removeAll(toRemove);
         }
     }
 

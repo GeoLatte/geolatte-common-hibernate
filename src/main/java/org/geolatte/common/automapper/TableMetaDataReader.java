@@ -34,11 +34,11 @@ class TableMetaDataReader {
 
     final private GeometryColumnTest geomTest;
 
-    public TableMetaDataReader(GeometryColumnTest geomTest) {
+    TableMetaDataReader(GeometryColumnTest geomTest) {
         this.geomTest = geomTest;
     }
 
-    public TableMetaData read(TableConfig cfg, DatabaseMetaData dmd) throws TableNotFoundException, MissingIdentifierException {
+    TableMetaData read(TableConfig cfg, DatabaseMetaData dmd) throws TableNotFoundException, MissingIdentifierException {
         LOGGER.info("Reading metadata for table " + cfg.getTableName());
         TableMetaData metaData = new TableMetaData(cfg.getTableRef());
         readColums(cfg, dmd, metaData);

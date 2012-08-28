@@ -25,7 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Creates a ClassLoader (using reflection).
+ * Creates a ClassLoader using reflection.
  *
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/26/12
@@ -36,6 +36,15 @@ public class ClassLoaderResolver {
 
     private final Constructor constructor;
 
+    /**
+     * Creates an instance
+     *
+     * @param classLoaderClassName the fully-qualified Class name for the <code>ClassLoader</code.
+     * @throws IllegalArgumentException if a null parameter is passed.
+     * @throws IllegalStateException    if no <code>ClassLoader</code> instance can be instantiated from the Class
+     *                                  specified by the <code>classLoaderClassName</code> parameter, or if no such
+     *                                  class can be located on the classpath.
+     */
     public ClassLoaderResolver(String classLoaderClassName) {
         if (classLoaderClassName == null) {
             throw new IllegalArgumentException("Null classname is not allowed.");
@@ -43,6 +52,28 @@ public class ClassLoaderResolver {
         constructor = findConstructor(classLoaderClass(classLoaderClassName));
         //test the method -- so user finds out early whether it works or not.
         newInstance(null);
+    }
+
+    /**
+     * Creates a new <code>ClassLoader</code> instance.
+     *
+     * @param parent the parent <code>ClassLoader</code> for the created instance.
+     * @return an instance of the <code>ClassLoader</code> subtype specified in this instance's constructor, having
+     *         as parent <code>ClassLoader</code> the instance specified in the <code>parent</code> parameter.
+     * @throws IllegalStateException if not such instance can be created.
+     */
+    public ClassLoader newInstance(ClassLoader parent) {
+        String msg = "Cannot create a classloader.";
+        try {
+            return (ClassLoader) constructor.newInstance(parent);
+        } catch (InstantiationException e) {
+            throw new IllegalStateException(msg, e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(msg, e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException(msg, e);
+        }
+
     }
 
     private Class<? extends ClassLoader> classLoaderClass(String classLoaderClassName) {
@@ -68,20 +99,6 @@ public class ClassLoaderResolver {
         }
         throw new IllegalStateException("No single-parameter constructor found with type ClassLoader in class "
                 + clClass.getCanonicalName());
-    }
-
-    public ClassLoader newInstance(ClassLoader parent) {
-        String msg = "Cannot create a classloader.";
-        try {
-            return (ClassLoader) constructor.newInstance(parent);
-        } catch (InstantiationException e) {
-            throw new IllegalStateException(msg, e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(msg, e);
-        } catch (InvocationTargetException e) {
-            throw new IllegalStateException(msg, e);
-        }
-
     }
 
 }

@@ -28,7 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Wrapper that associates a mapped class together with metadata about the source table.
+ * Wrapper that associates a mapped class together with metadata about the source table, and information
+ * on how the tables columns have been mapped to .
  *
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/26/12

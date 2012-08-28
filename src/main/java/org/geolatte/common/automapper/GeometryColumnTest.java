@@ -29,7 +29,13 @@ package org.geolatte.common.automapper;
  */
 interface GeometryColumnTest {
 
-    boolean isGeometry(Attribute info);
+    /**
+     * Returns true if the specified <code>Attribute</code> is of type geometry.
+     *
+     * @param attribute the <code>Attribute</code> to test
+     * @return true if the specified <code>Attribute</code> is of type geometry.
+     */
+    boolean isGeometry(Attribute attribute);
 
 
 }

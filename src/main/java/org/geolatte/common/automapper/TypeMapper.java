@@ -40,6 +40,9 @@ import java.util.List;
  *
  * @author Karel Maesen, Geovise BVBA (http://www.geovise.com/)
  */
+
+//TODO ---ensure that the CtClass is not leaked to the user --> keep intern and expose only the JavaClass.
+//          This implies that CtClass to Java type mapping should move to the MappingsGenerator
 public class TypeMapper {
 
     protected final static Logger logger = LoggerFactory.getLogger(TypeMapper.class);

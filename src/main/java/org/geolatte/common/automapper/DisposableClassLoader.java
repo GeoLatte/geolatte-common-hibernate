@@ -22,7 +22,7 @@
 package org.geolatte.common.automapper;
 
 /**
- * A <code>ClassLoader</code> for the auto-mapped classes, and that can be disposed of so as to delete the auto-mapped
+ * A <code>ClassLoader</code> for the automapped classes, and that can be disposed of so as to delete the auto-mapped
  * classes.
  *
  * @author Karel Maesen, Geovise BVBA
@@ -30,6 +30,11 @@ package org.geolatte.common.automapper;
  */
 public class DisposableClassLoader extends ClassLoader {
 
+    /**
+     * Creates an instance with the specified parent <code>ClassLoader</code>.
+     *
+     * @param parent the parent <code>ClassLoader</code> for the created instance.
+     */
     public DisposableClassLoader(ClassLoader parent) {
         super(parent);
     }

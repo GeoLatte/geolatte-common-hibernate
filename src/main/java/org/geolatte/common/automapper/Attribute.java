@@ -39,6 +39,7 @@ public class Attribute {
      * @param columnName the  column name of the attribute
      * @param sqlType the <code>java.sql.Type</code> code
      * @param dbType the name of the database type.
+     * @throws IllegalArgumentException if any of the parameters is null
      */
     Attribute(String columnName, int sqlType, String dbType) {
         if (columnName == null || dbType == null) {
@@ -52,16 +53,25 @@ public class Attribute {
     /**
      * Returns the column name of this <code>Attribute</code>.
      *
-     * @return
+     * @return the column name of this <code>Attribute</code>.
      */
     public String getColumnName() {
         return columnName;
     }
 
+    /**
+     * Returns the {@link java.sql.Types} code for the type of this <code>Attribute</code>
+     *
+     * @return the column name of this <code>Attribute</code>.
+     */
     public int getSqlType() {
         return sqlType;
     }
 
+    /**
+     * Returns the database name of the type of this <code>Attribute</code>
+     * @return the database name of the type of this <code>Attribute</code>
+     */
     public String getDbTypeName() {
         return dbType;
     }
@@ -70,6 +80,11 @@ public class Attribute {
         this.isIdentifier = isIdentifier;
     }
 
+    /**
+     * Returns true if this <code>Attribute</code> is an identifier.
+     *
+     * @return true if this <code>Attribute</code> is an identifier.
+     */
     public boolean isIdentifier() {
         return isIdentifier;
     }
@@ -78,6 +93,14 @@ public class Attribute {
         this.isGeometry = isGeometry;
     }
 
+    /**
+     * Returns true if this <code>Attribute</code> corresponds to the primary geometry of the table.
+     *
+     * <p>The primary geometry is the geometry which determines the location and shape of the object represented
+     * by the table row.</p>
+     *
+     * @return true if this <code>Attribute</code> is the primary geometry of the table.
+     */
     public boolean isGeometry() {
         return this.isGeometry;
     }

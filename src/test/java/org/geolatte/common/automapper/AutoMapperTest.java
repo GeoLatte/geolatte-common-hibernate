@@ -104,7 +104,7 @@ public class AutoMapperTest {
 
         AutoMapConfiguration cfg = new AutoMapConfiguration(new TypeMapper("BLOB"));
         TableRef tblRef = TableRef.valueOf("TESTAUTOMAP");
-        cfg.addTableConfiguration(new TableConfiguration.Builder(tblRef).withId("ID").result());
+        cfg.addTableConfiguration(new TableConfiguration.Builder(tblRef).identifier("ID").result());
 
         //Test that the configuration is successful
         final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());

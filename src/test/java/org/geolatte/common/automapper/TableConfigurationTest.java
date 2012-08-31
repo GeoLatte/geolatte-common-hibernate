@@ -36,17 +36,17 @@ public class TableConfigurationTest {
         TableConfiguration.Builder builder = new TableConfiguration.Builder(TableRef.valueOf("catalog", "schema", "table"));
         TableConfiguration configuration =
                 builder
-                        .withId("id")
-                        .withGeometry("geom")
+                        .identifier("id")
+                        .geometry("geom")
                         .exclude("excl")
                         .result();
 
         assertEquals("catalog", configuration.getCatalog());
         assertEquals("schema", configuration.getSchema());
         assertEquals("table", configuration.getTableName());
-        assertEquals("id", configuration.getIdColumn());
+        assertEquals("id", configuration.getIdentifierColumn());
         assertEquals("excl", configuration.getExcludedColumns().get(0));
-        assertEquals("geom", configuration.getGeomColumn());
+        assertEquals("geom", configuration.getGeometryColumn());
     }
 
     @Test
@@ -60,8 +60,8 @@ public class TableConfigurationTest {
     @Test
     public void testNoIdOrGeomConstruction() {
         TableConfiguration cfg = new TableConfiguration.Builder(TableRef.valueOf("table")).result();
-        assertNull(cfg.getGeomColumn());
-        assertNull(cfg.getIdColumn());
+        assertNull(cfg.getGeometryColumn());
+        assertNull(cfg.getIdentifierColumn());
         assertNotNull(cfg.getExcludedColumns());
         assertTrue(cfg.getExcludedColumns().isEmpty());
     }

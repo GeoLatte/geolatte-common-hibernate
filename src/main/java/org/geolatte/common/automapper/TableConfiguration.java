@@ -43,7 +43,7 @@ public class TableConfiguration {
     public static class Builder {
 
         /**
-         * Creates an empty <code>TableConfiguration</code>, i.e. one with no information save to the <code>TableRef</code>.
+         * Creates an empty <code>TableConfiguration</code> (with no information save to the <code>TableRef</code>).
          * @param tableRef the <code>TableRef</code> for the created <code>TableConfiguration</code>.
          * @return an empty <code>TableConfiguration</code> for the table specified by the <code>tableRef</code> parameter.
          */
@@ -54,7 +54,7 @@ public class TableConfiguration {
         final private TableConfiguration underConstruction;
 
         /**
-         * Constructs an instance of the specified table.
+         * Constructs an instance for the specified table.
          * @param tableRef the <code>TableRef</code> for the table for which a <code>TableConfiguration</code> is to be built.
          */
         public Builder(TableRef tableRef) {
@@ -68,11 +68,11 @@ public class TableConfiguration {
          *
          * <p>If this is not configured, the <code>AutoMapper</code> will select a random column of type <code>Geometry</code>.
          *
-         * @param geomColumn the name of the geometry column
+         * @param geometryColumn the name of the geometry column
          * @return this instance
          */
-        public Builder withGeometry(String geomColumn) {
-            underConstruction.geomColumn = geomColumn;
+        public Builder geometry(String geometryColumn) {
+            underConstruction.geomColumn = geometryColumn;
             return this;
         }
 
@@ -81,16 +81,18 @@ public class TableConfiguration {
          *
          * <p>If this is not configured, the <code>AutoMapper</code> will select the primary key of the table</code>
          *
-         * @param idColumn the name of the identifier column
+         * @param identifierColumn the name of the identifier column
          * @return this instance
          */
-        public Builder withId(String idColumn) {
-            underConstruction.idColumn = idColumn;
+        public Builder identifier(String identifierColumn) {
+            underConstruction.idColumn = identifierColumn;
             return this;
         }
 
         /**
-         * Excludes a column from the mapping process, i.e. no Class member will be generated for the specified column.
+         * Excludes a column from the mapping process
+         *
+         * <p>No class member will be generated for the specified column.</p>
          *
          * @param excluded the name of the column in the table to exclude
          * @return this instance.
@@ -145,11 +147,11 @@ public class TableConfiguration {
     }
 
     /**
-     * Returns the name of column that can be used as identifier.
+     * Returns the name of the column that can be used as identifier.
      *
-     * @return the name of column that can be used as identifier, or null if none is configured.
+     * @return the name of the column that can be used as identifier, or null if none is configured.
      */
-    public String getIdColumn() {
+    public String getIdentifierColumn() {
         return idColumn;
     }
 
@@ -158,14 +160,14 @@ public class TableConfiguration {
      *
      * @return the name of the column that provides the primary geometry, or null if none is configured.
      */
-    public String getGeomColumn() {
+    public String getGeometryColumn() {
         return geomColumn;
     }
 
     /**
-     * Returns the list of columns that need to be excluded by the <code>AutoMapper</code>
+     * Returns the list of columns that the <code>AutoMapper</code> should ignore.
      *
-     * @return the (possibly empty) list of columns that need to be excluded by the <code>AutoMapper</code>
+     * @return the (possibly empty) list of columns that the <code>AutoMapper</code> should ignore.
      */
     public List<String> getExcludedColumns() {
         return excludeCols;

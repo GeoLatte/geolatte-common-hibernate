@@ -33,7 +33,7 @@ public class TableRef {
     final private String catalog;
 
     /**
-     * Creates an instance from catalog,schema and table names
+     * Creates an instance from catalog, schema and table names
      * @param catalog the table catalog
      * @param schema the table schema
      * @param tableName the table name
@@ -56,14 +56,14 @@ public class TableRef {
     /**
      * Creates an instance from a table name
      * @param tableName the table name
-     * @return a <code>TableRef</code> for the table identified by the specified schema and table name.
+     * @return a <code>TableRef</code> for the table identified by the specified table name.
      */
     public static TableRef valueOf(String tableName) {
         return new TableRef(null, null, tableName);
     }
 
     /**
-     * Creates an instance from catalog,schema and table names
+     * Creates an instance from catalog, schema and table names
      * @param catalog the table catalog
      * @param schema the table schema
      * @param tableName the table name
@@ -84,7 +84,7 @@ public class TableRef {
     }
 
     /**
-     * Returns the schema name component this instance.
+     * Returns the schema name component of this instance.
      * @return the schema name component of this instance.
      */
     public String getSchema() {
@@ -92,7 +92,7 @@ public class TableRef {
     }
 
     /**
-     * Returns the catalog name component this instance.
+     * Returns the catalog name component of this instance.
      * @return the catalog name component of this instance.
      */
     public String getCatalog() {
@@ -102,7 +102,7 @@ public class TableRef {
     /**
      * Generates a representation of this instance.
      *
-     * <p>It creates a string with structure: [<catalog>.][<schema>.]<table name></p>
+     * <p>It creates a string with structure: [catalog.][schema.]table name</p>
      *
      * @return a string representation of this instance.
      */

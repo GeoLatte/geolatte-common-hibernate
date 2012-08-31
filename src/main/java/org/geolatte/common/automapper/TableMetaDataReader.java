@@ -48,9 +48,9 @@ class TableMetaDataReader {
     }
 
     private void setIdentifier(TableConfiguration cfg, DatabaseMetaData dmd, TableMetaData cInfo) throws MissingIdentifierException {
-        String configuredColumn = cfg.getIdColumn();
+        String configuredColumn = cfg.getIdentifierColumn();
         if (configuredColumn != null) {
-            setAsIdentifier(cInfo, cfg.getIdColumn());
+            setAsIdentifier(cInfo, cfg.getIdentifierColumn());
             return;
         }
         String column = determinePrimaryKey(cfg.getTableRef(), dmd);
@@ -62,9 +62,9 @@ class TableMetaDataReader {
     }
 
     private void setGeometry(TableConfiguration cfg, TableMetaData cInfo) throws MissingIdentifierException {
-        String configuredColumn = cfg.getGeomColumn();
+        String configuredColumn = cfg.getGeometryColumn();
         if (configuredColumn != null) {
-            setAsGeometry(cInfo, cfg.getIdColumn());
+            setAsGeometry(cInfo, cfg.getIdentifierColumn());
             return;
         }
         String column = determineGeometry(cfg.getTableRef(), cInfo);

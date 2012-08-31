@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The <code>TypeMapper</code> maps a pair consisting of java.sql.Type, and a
+ * Maps a pair consisting of java.sql.Type, and a
  * database type name to a Java Class and to a Hibernate type name.
  *
  * @author Karel Maesen, Geovise BVBA (http://www.geovise.com/)

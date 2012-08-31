@@ -36,7 +36,7 @@ class ColumnMetaData {
     /**
      * Constructs an instance.
      *
-     * @param columnName the  column name of the attribute
+     * @param columnName the  name of the column
      * @param sqlType the <code>java.sql.Type</code> code
      * @param dbType the name of the database type.
      * @throws IllegalArgumentException if any of the parameters is null

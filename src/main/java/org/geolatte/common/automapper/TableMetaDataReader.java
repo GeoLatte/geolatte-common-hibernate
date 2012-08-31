@@ -113,6 +113,10 @@ class TableMetaDataReader {
                 String colName = rs.getString("COLUMN_NAME");
                 String dbType = rs.getString("TYPE_NAME");
                 int javaType = rs.getInt("DATA_TYPE");
+                if (columnToSkip(cfg, colName)) {
+                    LOGGER.info(String.format("Column %s in exclude list of configuration, so excluded.", colName));
+                    continue;
+                }
                 addAttribute(tableMetaData, colName, dbType, javaType);
             }
         } catch (SQLException ex) {
@@ -127,6 +131,13 @@ class TableMetaDataReader {
         if (empty) {
             throw new TableNotFoundException(cfg.getTableRef());
         }
+    }
+
+    private boolean columnToSkip(TableConfig cfg, String colName) {
+        for (String toExclude : cfg.getExcludedColumns()) {
+            if (colName.equalsIgnoreCase(toExclude)) return true;
+        }
+        return false;
     }
 
     private boolean setAsIdentifier(TableMetaData metaData, String column) {

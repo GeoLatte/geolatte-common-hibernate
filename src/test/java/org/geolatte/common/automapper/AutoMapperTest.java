@@ -60,7 +60,7 @@ public class AutoMapperTest {
     }
 
     @Test
-    public void testStandard() throws SQLException {
+    public void testStandard() throws Exception {
         doWithinConnection("create table testautomap (id integer primary key, name varchar, num int, price double, geometry geometry)");
         doWithinConnection("insert into testautomap values (1, 'test', 2, 2.43, ST_GeomFromText('POINT(1 1)', 4326))");
 
@@ -81,8 +81,8 @@ public class AutoMapperTest {
         assertEquals("integer", mapping.selectSingleNode("//hibernate-mapping/class/id/@type").getText());
         assertEquals("GEOMETRY", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@column").getText());
         assertEquals("org.hibernatespatial.GeometryUserType", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@type").getText());
-        assertEquals("geometry", autoMapper.getGeometryAttribute(TableRef.valueOf("TESTAUTOMAP")));
-        assertEquals("id", autoMapper.getIdAttribute(TableRef.valueOf("TESTAUTOMAP")));
+        assertEquals("geometry", autoMapper.getGeometryProperty(TableRef.valueOf("TESTAUTOMAP")));
+        assertEquals("id", autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
 
         //check if information can be retrieved
         final SessionFactory factory = buildSessionFactory(mapping);
@@ -97,7 +97,7 @@ public class AutoMapperTest {
     }
 
     @Test
-    public void testConfiguredId() throws SQLException {
+    public void testConfiguredId() throws Exception {
         doWithinConnection("create table testautomap (id integer, name varchar, num int, price double, geometry geometry)");
         doWithinConnection("insert into testautomap values (1, 'test', 2, 2.43, ST_GeomFromText('POINT(1 1)', 4326))");
         doWithinConnection("insert into testautomap values (1, 'test 2', 3, 2.43, ST_GeomFromText('POINT(2 2)', 4326))");
@@ -114,7 +114,7 @@ public class AutoMapperTest {
         assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
         assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
         assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
-        assertEquals("id", autoMapper.getIdAttribute(TableRef.valueOf("TESTAUTOMAP")));
+        assertEquals("id", autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
 
         //check if information can be retrieved
         final SessionFactory factory = buildSessionFactory(mapping);
@@ -129,7 +129,7 @@ public class AutoMapperTest {
     }
 
     @Test
-    public void testNoPKey() throws SQLException {
+    public void testNoPKeyThereClassIsNotMapped() throws SQLException {
         doWithinConnection("create table testautomap (id integer, name varchar, num int, price double, geometry geometry)");
         doWithinConnection("insert into testautomap values (1, 'test', 2, 2.43, ST_GeomFromText('POINT(1 1)', 4326))");
 
@@ -141,20 +141,39 @@ public class AutoMapperTest {
         final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
         Document mapping = runAutoMapper(autoMapper);
         assertNotNull(mapping);
-        assertNull(autoMapper.getIdAttribute(TableRef.valueOf("TESTAUTOMAP")));
+        assertNull(mapping.selectSingleNode("//hibernate-mapping/class/@name"));
+        assertNull(autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
         assertNull(autoMapper.getTableMapping(TableRef.valueOf("TESTAUTOMAP")));
         LOGGER.debug("Mapping file:\n" + mapping.asXML());
-        //check if information can be retrieved
-        final SessionFactory factory = buildSessionFactory(mapping);
-        doWithinTransaction(factory, new TxOp(){
-            public void execute(Session session){
-                Criteria criteria = session.createCriteria(autoMapper.getGeneratedClass(TableRef.valueOf("TESTAUTOMAP")));
-                List list = criteria.list();
-                assertTrue(list.size() == 1);
-            }
-        });
-        factory.close();
     }
+
+    @Test
+    public void testExcludedColumnsAreNotMapped() throws Exception {
+        doWithinConnection("create table testautomap (id integer primary key, name varchar, num int, price double, geometry geometry)");
+        doWithinConnection("insert into testautomap values (1, 'test', 2, 2.43, ST_GeomFromText('POINT(1 1)', 4326))");
+
+        TableConfig tableCfg = new TableConfig.Builder(TableRef.valueOf("TESTAUTOMAP")).exclude("PRICE").result();
+        AutoMapConfig cfg = new AutoMapConfig(new TypeMapper("BLOB"));
+        cfg.addTableConfig(tableCfg);
+
+        //Test that the configuration is successful
+        final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
+        Document mapping = runAutoMapper(autoMapper);
+        assertNotNull(mapping);
+        LOGGER.debug("Mapping file:\n" + mapping.asXML());
+        assertEquals(cfg.getPackageName(), mapping.selectSingleNode("//hibernate-mapping/@package").getText());
+        assertEquals(cfg.getPackageName() + ".Testautomap", autoMapper.getTableMapping(TableRef.valueOf("TESTAUTOMAP")).getGeneratedClass().getCanonicalName());
+        assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
+        assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
+        assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
+        assertEquals("integer", mapping.selectSingleNode("//hibernate-mapping/class/id/@type").getText());
+        assertEquals("GEOMETRY", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@column").getText());
+        assertEquals("org.hibernatespatial.GeometryUserType", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@type").getText());
+        assertEquals("id", autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
+        assertNull(mapping.selectSingleNode("//hibernate-mapping/class/property[@name='price']"));
+
+    }
+
 
     private DisposableClassLoader disposableCL() {
         DisposableClassLoader cl =  new DisposableClassLoader(Thread.currentThread().getContextClassLoader());
@@ -180,14 +199,16 @@ public class AutoMapperTest {
             );
     }
 
-    private void doWithinTransaction(final SessionFactory sf, TxOp op){
+    private void doWithinTransaction(final SessionFactory sf, TxOp op) throws Exception {
          Transaction tx = null;
         try {
             tx = sf.getCurrentSession().beginTransaction();
             op.execute(sf.getCurrentSession());
             tx.commit();
         } catch(Exception e) {
+            LOGGER.warn(e.getMessage(), e);
             if (tx != null) tx.rollback();
+            throw e;
         }
     }
 

@@ -36,7 +36,6 @@ public class TableConfig {
     private String idColumn;
     private String geomColumn;
     final private List<String> excludeCols = new ArrayList<String>();
-    final private List<String> includeCols = new ArrayList<String>();
 
     /**
      * A builder for a <code>TableConfig</code>
@@ -93,26 +92,11 @@ public class TableConfig {
         /**
          * Excludes a column from the mapping process, i.e. no Class member will be generated for the specified column.
          *
-         * <p>If a column is both included and excluded, the inclusion has priority.</p>
-         *
          * @param excluded the name of the column in the table to exclude
          * @return this instance.
          */
         public Builder exclude(String excluded) {
             underConstruction.excludeCols.add(excluded);
-            return this;
-        }
-
-        /**
-         * Includes a column from the mapping process, i.e. a Class member will be generated for the specified column.
-         *
-         * <p>If a column is both included and excluded, the inclusion has priority.</p>
-         *
-         * @param included the name of the column in the table to include
-         * @return this instance.
-         */
-        public Builder include(String included) {
-            underConstruction.includeCols.add(included);
             return this;
         }
 
@@ -176,15 +160,6 @@ public class TableConfig {
      */
     public String getGeomColumn() {
         return geomColumn;
-    }
-
-    /**
-     * Returns the list of columns that need to be included by the <code>AutoMapper</code>
-     *
-     * @return the (possibly empty) list of columns that need to be included by the <code>AutoMapper</code>
-     */
-    public List<String> getIncludedColumns() {
-        return includeCols;
     }
 
     /**

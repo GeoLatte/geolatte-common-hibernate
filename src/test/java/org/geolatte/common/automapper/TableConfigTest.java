@@ -39,14 +39,12 @@ public class TableConfigTest {
                         .withId("id")
                         .withGeometry("geom")
                         .exclude("excl")
-                        .include("incl")
                         .result();
 
         assertEquals("catalog", config.getCatalog());
         assertEquals("schema", config.getSchema());
         assertEquals("table", config.getTableName());
         assertEquals("id", config.getIdColumn());
-        assertEquals("incl", config.getIncludedColumns().get(0));
         assertEquals("excl", config.getExcludedColumns().get(0));
         assertEquals("geom", config.getGeomColumn());
     }
@@ -64,9 +62,7 @@ public class TableConfigTest {
         TableConfig cfg = new TableConfig.Builder(TableRef.valueOf("table")).result();
         assertNull(cfg.getGeomColumn());
         assertNull(cfg.getIdColumn());
-        assertNotNull(cfg.getIncludedColumns());
         assertNotNull(cfg.getExcludedColumns());
-        assertTrue(cfg.getIncludedColumns().isEmpty());
         assertTrue(cfg.getExcludedColumns().isEmpty());
     }
 

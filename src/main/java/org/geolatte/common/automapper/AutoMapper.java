@@ -178,10 +178,10 @@ public class AutoMapper {
      * Returns the name of the Identifier property
      *
      * @param tableRef the <code>TableRef</code> for the table
-     * @return the name of the identifier attribute, or null if the table specified by the <code>tableRef</code>
+     * @return the name of the identifier property, or null if the table specified by the <code>tableRef</code>
      *         parameter is not mapped
      */
-    public String getIdAttribute(TableRef tableRef) {
+    public String getIdProperty(TableRef tableRef) {
         TableMapping tableMapping = mappedClasses.get(tableRef);
         if (tableMapping == null) {
             return null;
@@ -191,15 +191,15 @@ public class AutoMapper {
     }
 
     /**
-     * Returns the name of the primary geometry attribute.
+     * Returns the name of the primary geometry property.
      * <p/>
      * <p>For the meaning of Primary, see {@link ColumnMetaData#isGeometry()}.</p>
      *
      * @param tableRef the <code>TableRef</code> for the table
-     * @return the name of the primary geometry attribute, or null if the table specified by the <code>tableRef</code>
+     * @return the name of the primary geometry property, or null if the table specified by the <code>tableRef</code>
      *         parameter is not mapped or has no primary geometry.
      */
-    public String getGeometryAttribute(TableRef tableRef) {
+    public String getGeometryProperty(TableRef tableRef) {
         TableMapping tableMapping = mappedClasses.get(tableRef);
         if (tableMapping == null) {
             return null;

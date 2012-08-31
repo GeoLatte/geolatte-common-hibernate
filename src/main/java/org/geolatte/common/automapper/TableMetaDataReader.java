@@ -38,7 +38,7 @@ class TableMetaDataReader {
         this.geomTest = geomTest;
     }
 
-    TableMetaData read(TableConfig cfg, DatabaseMetaData dmd) throws TableNotFoundException, MissingIdentifierException {
+    TableMetaData read(TableConfiguration cfg, DatabaseMetaData dmd) throws TableNotFoundException, MissingIdentifierException {
         LOGGER.info("Reading metadata for table " + cfg.getTableName());
         TableMetaData metaData = new TableMetaData(cfg.getTableRef());
         readColums(cfg, dmd, metaData);
@@ -47,7 +47,7 @@ class TableMetaDataReader {
         return metaData;
     }
 
-    private void setIdentifier(TableConfig cfg, DatabaseMetaData dmd, TableMetaData cInfo) throws MissingIdentifierException {
+    private void setIdentifier(TableConfiguration cfg, DatabaseMetaData dmd, TableMetaData cInfo) throws MissingIdentifierException {
         String configuredColumn = cfg.getIdColumn();
         if (configuredColumn != null) {
             setAsIdentifier(cInfo, cfg.getIdColumn());
@@ -61,7 +61,7 @@ class TableMetaDataReader {
         throw new MissingIdentifierException(cfg.getTableRef().toString());
     }
 
-    private void setGeometry(TableConfig cfg, TableMetaData cInfo) throws MissingIdentifierException {
+    private void setGeometry(TableConfiguration cfg, TableMetaData cInfo) throws MissingIdentifierException {
         String configuredColumn = cfg.getGeomColumn();
         if (configuredColumn != null) {
             setAsGeometry(cInfo, cfg.getIdColumn());
@@ -103,7 +103,7 @@ class TableMetaDataReader {
         return pkn;
     }
 
-    private void readColums(TableConfig cfg, DatabaseMetaData dmd, TableMetaData tableMetaData) throws TableNotFoundException {
+    private void readColums(TableConfiguration cfg, DatabaseMetaData dmd, TableMetaData tableMetaData) throws TableNotFoundException {
         ResultSet rs = null;
         boolean empty = true;
         try {
@@ -133,7 +133,7 @@ class TableMetaDataReader {
         }
     }
 
-    private boolean columnToSkip(TableConfig cfg, String colName) {
+    private boolean columnToSkip(TableConfiguration cfg, String colName) {
         for (String toExclude : cfg.getExcludedColumns()) {
             if (colName.equalsIgnoreCase(toExclude)) return true;
         }

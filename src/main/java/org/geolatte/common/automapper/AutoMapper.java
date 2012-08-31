@@ -32,12 +32,12 @@ import java.util.*;
 /**
  * Maps a set of tables to POJO Classes.
  * <p>The central method of the <code>AutoMapper</code> is the <code>map()</code> method. It generates for each table
- * listed in its <code>AutoMapConfig</code> a POJO Class, and generates a mapping document for Hibernate ORM that describes
+ * listed in its <code>AutoMapConfiguration</code> a POJO Class, and generates a mapping document for Hibernate ORM that describes
  * the mapping between the tables and the generated POJO Classes.</p>
  * <p>A table can be mapped by the <code>AutoMapper</code> if the following condition is met: </p>
  * <ul>
  * <li>The table must have an identifier column; i.e. either the table has a primary key or the <code>
- * TableConfig</code> for the table names a column that functions as identifier.</li>
+ * TableConfiguration</code> for the table names a column that functions as identifier.</li>
  * </ul>
  * <p>It may happen that only a subset of the columns of a table can be mapped to class properties. This happens if: </p>
  * <ul>
@@ -45,19 +45,21 @@ import java.util.*;
  * <li>the <code>NamingStrategy</code> generates a name for a property getter/setter that fails to compile</li>
  * </ul>
  *
+ * <p>This class is thread-safe.</p>
+ *
  * @author Karel Maesen, Geovise BVBA
  */
-//TODO -- ensures that mapping is only once performed, and that methods that depend on having first run a mapping throw
-// IllegalStateException
 public class AutoMapper {
 
     protected final static Logger LOGGER = LoggerFactory.getLogger(AutoMapper.class);
 
-    final private AutoMapConfig config;
+    final private AutoMapConfiguration configuration;
 
     final private Map<TableRef, TableMapping> mappedClasses = new HashMap<TableRef, TableMapping>();
 
     final private ClassLoader classLoader;
+
+    private boolean mappingComplete = false;
 
     /**
      * Creates an <code>AutoMapper</code> using the specified configuration and <code>ClassLoader</code>.
@@ -65,17 +67,17 @@ public class AutoMapper {
      * <p>The classes created by this <code>AutoMapper</code> will be loaded in the
      * specified <code>ClassLoader</code>.
      *
-     * @param config
+     * @param configuration
      * @param classLoader
      */
-    public AutoMapper(AutoMapConfig config, ClassLoader classLoader) {
-        this.config = config;
+    public AutoMapper(AutoMapConfiguration configuration, ClassLoader classLoader) {
+        this.configuration = configuration;
         this.classLoader = classLoader;
     }
 
     /**
      * Returns the Hibernate mapping document that describes the mapping for all tables listed in the
-     * <code>AutoMapConfig</code> of this instance.
+     * <code>AutoMapConfiguration</code> of this instance.
      * <p/>
      * <p>As a side-effect, the POJO classes corresponding to the tables are generated and loaded in the
      * <code>ClassLoader</code> associated with this instance.</p>
@@ -87,10 +89,14 @@ public class AutoMapper {
      * to the log, and the operation will continue with the next table.</p>
      *
      * @param conn JDBC <code>Connection</code> used during mapping
-     * @return the XML mapping document that maps the tables listed in the <code>AutoMapConfig</code> of this instance.
-     * @throws SQLException
+     * @return the XML mapping document that maps the tables listed in the <code>AutoMapConfiguration</code> of this instance.
+     * @throws SQLException if the JDBC <code>DataBaseMetaData</code> cannot be retrieved from the specified <code>Connection</code>
+     * @throws IllegalStateException if this method is run twice on the same instance.
      */
-    public Document map(Connection conn) throws SQLException {
+    public synchronized Document map(Connection conn) throws SQLException {
+        if (mappingComplete) {
+            throw new IllegalStateException("Map method already run on this instance.");
+        }
         DatabaseMetaData dmd = conn.getMetaData();
         TableMetaDataReader metaDataReader = new TableMetaDataReader(new DefaultGeometryColumnTest(typeMapper()));
         MappedClassGenerator mappedClassGenerator = new MappedClassGenerator(getPackageName(), naming(), typeMapper());
@@ -107,6 +113,7 @@ public class AutoMapper {
                 LOGGER.warn(e.getMessage());
             }
         }
+        mappingComplete = true;
         return generateMappingXML();
     }
 
@@ -116,7 +123,7 @@ public class AutoMapper {
      * @return the name of the package that holds all generated classes.
      */
     public String getPackageName() {
-        return this.config.getPackageName();
+        return this.configuration.getPackageName();
     }
 
     /**
@@ -124,8 +131,12 @@ public class AutoMapper {
      *
      * @return the <code>TableMapping</code> for the table specified by the <code>tableRef</code> parameter.
      * @tableRef the <code>TableRef</code> that determines a table in the database
+     * @throws IllegalStateException if the map() method has not been invoked first.
      */
     TableMapping getTableMapping(TableRef tableRef) {
+        if (!mappingComplete) {
+            throw new IllegalStateException("Map operation must be invoked first.");
+        }
         return mappedClasses.get(tableRef);
 
     }
@@ -136,8 +147,12 @@ public class AutoMapper {
      * @param tableRef the <code>TableRef</code> for the table
      * @return the <code>Class</code> object generated from the table specifed by the <code>tableRef</code> parameter,
      *         or null if no such class has been generated.
+     * @throws IllegalStateException if the map() method has not been invoked first.
      */
     public Class<?> getGeneratedClass(TableRef tableRef) {
+        if (!mappingComplete) {
+            throw new IllegalStateException("Map operation must be invoked first.");
+        }
         TableMapping mc = mappedClasses.get(tableRef);
         return mc == null ? null : mc.getGeneratedClass();
     }
@@ -146,8 +161,12 @@ public class AutoMapper {
      * Returns the <code>TableRef</code>s to all tables mapped by this <code>AutoMapper</code>.
      *
      * @return the <code>TableRef</code>s to all the tables mapped by this <code>AutoMapper</code>.
+     * @throws IllegalStateException if the map() method has not been invoked first.
      */
     public List<TableRef> getMappedTables() {
+        if (!mappingComplete) {
+            throw new IllegalStateException("Map operation must be invoked first.");
+        }
         List<TableRef> list = new ArrayList<TableRef>();
         for (TableRef tbn : mappedClasses.keySet()) {
             list.add(tbn);
@@ -162,8 +181,12 @@ public class AutoMapper {
      *
      * @param tableRef the <code>TableRef</code> for the table
      * @return list of properties of the class that corresponds with the table identified by the arguments
+     * @throws IllegalStateException if the map() method has not been invoked first.
      */
     public List<String> getProperties(TableRef tableRef) {
+        if (!mappingComplete) {
+            throw new IllegalStateException("Map operation must be invoked first.");
+        }
         List<String> result = new ArrayList<String>();
         TableMapping tableMapping = mappedClasses.get(tableRef);
         if (tableMapping == null) return result;
@@ -180,8 +203,12 @@ public class AutoMapper {
      * @param tableRef the <code>TableRef</code> for the table
      * @return the name of the identifier property, or null if the table specified by the <code>tableRef</code>
      *         parameter is not mapped
+     * @throws IllegalStateException if the map() method has not been invoked first.
      */
     public String getIdProperty(TableRef tableRef) {
+        if (!mappingComplete) {
+            throw new IllegalStateException("Map operation must be invoked first.");
+        }
         TableMapping tableMapping = mappedClasses.get(tableRef);
         if (tableMapping == null) {
             return null;
@@ -198,8 +225,12 @@ public class AutoMapper {
      * @param tableRef the <code>TableRef</code> for the table
      * @return the name of the primary geometry property, or null if the table specified by the <code>tableRef</code>
      *         parameter is not mapped or has no primary geometry.
+     * @throws IllegalStateException if the map() method has not been invoked first.
      */
     public String getGeometryProperty(TableRef tableRef) {
+        if (!mappingComplete) {
+            throw new IllegalStateException("Map operation must be invoked first.");
+        }
         TableMapping tableMapping = mappedClasses.get(tableRef);
         if (tableMapping == null) {
             return null;
@@ -222,7 +253,7 @@ public class AutoMapper {
     }
 
     private boolean isAlreadyMapped(TableRef tableRef) {
-        if (getTableMapping(tableRef) != null) {
+        if (mappedClasses.get(tableRef) != null) {
             LOGGER.info("Class info for table " + tableRef + " has already been mapped.");
             return true;
         }
@@ -230,18 +261,18 @@ public class AutoMapper {
     }
 
     private NamingStrategy naming() {
-        return this.config.getNaming();
+        return this.configuration.getNaming();
     }
 
     private TypeMapper typeMapper() {
-        return this.config.getTypeMapper();
+        return this.configuration.getTypeMapper();
     }
 
-    private TableConfig getTableConfig(TableRef tableRef) {
-        return this.config.getTableConfig(tableRef);
+    private TableConfiguration getTableConfig(TableRef tableRef) {
+        return this.configuration.getTableConfiguration(tableRef);
     }
 
     private Collection<TableRef> configuredTables() {
-        return this.config.getTableRefs();
+        return this.configuration.getTableRefs();
     }
 }

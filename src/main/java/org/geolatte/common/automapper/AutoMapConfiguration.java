@@ -29,7 +29,7 @@ import java.util.*;
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/23/12
  */
-public class AutoMapConfig {
+public class AutoMapConfiguration {
 
     /**
      * The default package name for the generated classes.
@@ -39,7 +39,7 @@ public class AutoMapConfig {
     final private String packageName;
     final private NamingStrategy naming;
     final private TypeMapper typeMapper;
-    final private List<TableConfig> tableConfigs = new ArrayList<TableConfig>();
+    final private List<TableConfiguration> tableConfigurations = new ArrayList<TableConfiguration>();
 
     /**
      * Constructs an instance
@@ -47,7 +47,7 @@ public class AutoMapConfig {
      * @param naming the <code>NamingStrategy</code> to use
      * @param typeMapper the <code>TypeMapper</code> to use
      */
-    public AutoMapConfig(String packageName, NamingStrategy naming, TypeMapper typeMapper) {
+    public AutoMapConfiguration(String packageName, NamingStrategy naming, TypeMapper typeMapper) {
         this.packageName = packageName;
         this.naming = naming;
         this.typeMapper = typeMapper;
@@ -58,7 +58,7 @@ public class AutoMapConfig {
      *
      * @param typeMapper the <code>TypeMapper</code> instance to use.
      */
-    public AutoMapConfig(TypeMapper typeMapper) {
+    public AutoMapConfiguration(TypeMapper typeMapper) {
         this(DEFAULT_PACKAGE_NAME, new SimpleNamingStrategy(), typeMapper);
     }
 
@@ -93,34 +93,34 @@ public class AutoMapConfig {
     /**
      * Adds a <code>TableRef</code> to the configuration.
      *
-     * <p>A default (empty) <code>TableConfig</code> will be be created and stored in the configuration.</p>
+     * <p>A default (empty) <code>TableConfiguration</code> will be be created and stored in the configuration.</p>
      *
      * @param tableRef a <code>TableRef</code> that identifies a table in the database.
      */
     public void addTable(TableRef tableRef) {
-        tableConfigs.add(TableConfig.Builder.emptyConfig(tableRef));
+        tableConfigurations.add(TableConfiguration.Builder.emptyConfig(tableRef));
     }
 
     /**
-     * Adds a <code>TableConfig</code> to the configuration.
+     * Adds a <code>TableConfiguration</code> to the configuration.
      *
-     * @param config a <code>TableConfig</code> that instructs how to map the table to a generated class.
+     * @param configuration a <code>TableConfiguration</code> that instructs how to map the table to a generated class.
      */
-    public void addTableConfig(TableConfig config) {
-        tableConfigs.add(config);
+    public void addTableConfiguration(TableConfiguration configuration) {
+        tableConfigurations.add(configuration);
     }
 
     /**
-     * Returns all <code>TableConfig</code>s configured in this <code>AutoMapConfig</code>
+     * Returns all <code>TableConfiguration</code>s configured in this <code>AutoMapConfiguration</code>
      *
-     * @return all <code>TableConfigs</code>s in this <code>AutoMapConfig</code>
+     * @return all <code>TableConfigs</code>s in this <code>AutoMapConfiguration</code>
      */
-    public Collection<TableConfig> getTableConfigs() {
-        return Collections.unmodifiableList(tableConfigs);
+    public Collection<TableConfiguration> getTableConfigurations() {
+        return Collections.unmodifiableList(tableConfigurations);
     }
 
-    TableConfig getTableConfig(TableRef tableRef){
-       for (TableConfig cfg : tableConfigs) {
+    TableConfiguration getTableConfiguration(TableRef tableRef){
+       for (TableConfiguration cfg : tableConfigurations) {
            if (cfg.getTableRef().equals(tableRef)) {
                 return cfg;
            }
@@ -129,8 +129,8 @@ public class AutoMapConfig {
     }
 
     List<TableRef> getTableRefs() {
-        List<TableRef> result = new ArrayList<TableRef>(tableConfigs.size());
-        for (TableConfig cfg : tableConfigs) {
+        List<TableRef> result = new ArrayList<TableRef>(tableConfigurations.size());
+        for (TableConfiguration cfg : tableConfigurations) {
             result.add(cfg.getTableRef());
         }
         return result;

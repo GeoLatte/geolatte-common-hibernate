@@ -30,7 +30,7 @@ import java.util.List;
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/23/12
  */
-public class TableConfig {
+public class TableConfiguration {
 
     final private TableRef tableRef;
     private String idColumn;
@@ -38,27 +38,27 @@ public class TableConfig {
     final private List<String> excludeCols = new ArrayList<String>();
 
     /**
-     * A builder for a <code>TableConfig</code>
+     * A builder for a <code>TableConfiguration</code>
      */
     public static class Builder {
 
         /**
-         * Creates an empty <code>TableConfig</code>, i.e. one with no information save to the <code>TableRef</code>.
-         * @param tableRef the <code>TableRef</code> for the created <code>TableConfig</code>.
-         * @return an empty <code>TableConfig</code> for the table specified by the <code>tableRef</code> parameter.
+         * Creates an empty <code>TableConfiguration</code>, i.e. one with no information save to the <code>TableRef</code>.
+         * @param tableRef the <code>TableRef</code> for the created <code>TableConfiguration</code>.
+         * @return an empty <code>TableConfiguration</code> for the table specified by the <code>tableRef</code> parameter.
          */
-        public static TableConfig emptyConfig(TableRef tableRef) {
-            return new TableConfig(tableRef);
+        public static TableConfiguration emptyConfig(TableRef tableRef) {
+            return new TableConfiguration(tableRef);
         }
 
-        final private TableConfig underConstruction;
+        final private TableConfiguration underConstruction;
 
         /**
          * Constructs an instance of the specified table.
-         * @param tableRef the <code>TableRef</code> for the table for which a <code>TableConfig</code> is to be built.
+         * @param tableRef the <code>TableRef</code> for the table for which a <code>TableConfiguration</code> is to be built.
          */
         public Builder(TableRef tableRef) {
-            underConstruction = new TableConfig(tableRef);
+            underConstruction = new TableConfiguration(tableRef);
         }
 
         /**
@@ -101,16 +101,16 @@ public class TableConfig {
         }
 
         /**
-         * Returns the <code>TableConfig</code> that is built by this instance.
-         * @return the constructed <code>TableConfig</code>
+         * Returns the <code>TableConfiguration</code> that is built by this instance.
+         * @return the constructed <code>TableConfiguration</code>
          */
-        public TableConfig result() {
+        public TableConfiguration result() {
             return underConstruction;
         }
 
     }
 
-    private TableConfig(TableRef tableRef) {
+    private TableConfiguration(TableRef tableRef) {
         if (tableRef == null) throw new IllegalArgumentException("TableRef cannot be null.)");
         this.tableRef = tableRef;
     }

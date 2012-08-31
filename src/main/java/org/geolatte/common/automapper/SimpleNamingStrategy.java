@@ -21,7 +21,7 @@
 package org.geolatte.common.automapper;
 
 /**
- * This is the default implementation for a <code>NamingStrategy</code>.
+ * Default implementation for a <code>NamingStrategy</code>.
  *
  * @author Karel Maesen, Geovise BVBA (http://www.geovise.com/)
  */

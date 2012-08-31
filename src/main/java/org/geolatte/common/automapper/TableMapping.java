@@ -21,15 +21,13 @@
 
 package org.geolatte.common.automapper;
 
-import javassist.CtClass;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Wrapper that associates a mapped class together with metadata about the source table, and information
- * on how the tables columns have been mapped to .
+ * on how the table columns have been mapped to properties.
  *
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: 8/26/12
@@ -37,22 +35,12 @@ import java.util.Map;
 class TableMapping {
 
     final private TableMetaData tableMetaData;
-    final private Map<Attribute, FieldInfo> mappedFields = new HashMap<Attribute, FieldInfo>();
+    final private Map<ColumnMetaData, ColumnMapping> mappedColumns = new HashMap<ColumnMetaData, ColumnMapping>();
 
     private Class<?> generatedClass;
 
     TableMapping(TableMetaData tableMetaData) {
         this.tableMetaData = tableMetaData;
-    }
-
-    String getHibernateType(Attribute attribute) {
-        FieldInfo f = mappedFields.get(attribute);
-        return f == null ? null : f.hibernateType;
-    }
-
-    String getPropertyName(Attribute attribute) {
-        FieldInfo f = mappedFields.get(attribute);
-        return f == null ? null : f.propertyName;
     }
 
     Class<?> getGeneratedClass() {
@@ -63,46 +51,37 @@ class TableMapping {
         return tableMetaData;
     }
 
-    Attribute getIdentifer() {
-        for (Attribute attribute : getMappedAttributes()) {
-            if (attribute.isIdentifier()) {
-                return attribute;
+    public ColumnMetaData getIdentifierColumn() {
+        for (ColumnMetaData cmd : mappedColumns.keySet()){
+            if (cmd.isIdentifier()) {
+                return cmd;
             }
         }
-        return null;
+        //If this is thrown, it is because of a programming error. Because Hibernate requires an Id-property,
+        // one must be mapped.
+        throw new IllegalStateException("No mapped identifier property");
     }
 
-    Collection<Attribute> getMappedAttributes() {
-        return mappedFields.keySet();
+    Collection<ColumnMetaData> getMappedColumns() {
+        return mappedColumns.keySet();
+    }
+
+    ColumnMapping getColumnMapping(ColumnMetaData col) {
+        return mappedColumns.get(col);
     }
 
     String getSimpleName() {
         return getGeneratedClass().getSimpleName();
     }
 
-    void addColumnMapping(Attribute ai, String propertyName, String hibernateType, CtClass ctClass) {
-        mappedFields.put(ai, new FieldInfo(propertyName, hibernateType, ctClass));
+    void addColumnMapping(ColumnMetaData ai, String propertyName, String hibernateType, Class<?> javaType) {
+        if (ai == null) {
+            throw new IllegalArgumentException("Illegal Null argument during column mapping registration.");
+        }
+        mappedColumns.put(ai, new ColumnMapping(propertyName, hibernateType, javaType));
     }
 
     void setGeneratedClass(Class<?> generatedClass) {
         this.generatedClass = generatedClass;
-    }
-
-    CtClass getType(Attribute attribute) {
-        FieldInfo f = mappedFields.get(attribute);
-        return f == null ? null : f.ctClass;
-    }
-
-
-    private static class FieldInfo {
-        final String hibernateType;
-        final CtClass ctClass;
-        final String propertyName;
-
-        FieldInfo(String propertyName, String hibernateType, CtClass ctClass) {
-            this.propertyName = propertyName;
-            this.hibernateType = hibernateType;
-            this.ctClass = ctClass;
-        }
     }
 }

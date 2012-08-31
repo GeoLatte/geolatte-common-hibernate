@@ -36,7 +36,7 @@ class DefaultGeometryColumnTest implements GeometryColumnTest {
     }
 
     @Override
-    public boolean isGeometry(Attribute ai) {
+    public boolean isGeometry(ColumnMetaData ai) {
         try {
             String hibernateType = typeMapper.getHibernateType(ai.getDbTypeName(), ai.getSqlType());
             if (GeometryUserType.class.getCanonicalName().equals(hibernateType)) {

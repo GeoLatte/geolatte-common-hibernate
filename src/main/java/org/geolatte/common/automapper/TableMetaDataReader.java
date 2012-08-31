@@ -76,7 +76,7 @@ class TableMetaDataReader {
     }
 
     private String determineGeometry(TableRef tableRef, TableMetaData cInfo) {
-        for (Attribute ai : cInfo.getAttributes()) {
+        for (ColumnMetaData ai : cInfo.getColumnMetaDatas()) {
             if (this.geomTest.isGeometry(ai)) return ai.getColumnName();
         }
         return null;
@@ -130,7 +130,7 @@ class TableMetaDataReader {
     }
 
     private boolean setAsIdentifier(TableMetaData metaData, String column) {
-        for (Attribute ai : metaData.getAttributes()) {
+        for (ColumnMetaData ai : metaData.getColumnMetaDatas()) {
             if (ai.getColumnName().equals(column)) {
                 ai.setAsIdentifier(true);
                 return true;
@@ -142,7 +142,7 @@ class TableMetaDataReader {
 
 
     private boolean setAsGeometry(TableMetaData metaData, String column) {
-        for (Attribute ai : metaData.getAttributes()) {
+        for (ColumnMetaData ai : metaData.getColumnMetaDatas()) {
             if (ai.getColumnName().equals(column)) {
                 ai.setAsGeometry(true);
                 return true;
@@ -154,7 +154,7 @@ class TableMetaDataReader {
 
 
     private void addAttribute(TableMetaData metaData, String colName, String dbType, int javaType) {
-        metaData.addAttribute(new Attribute(colName, javaType, dbType));
+        metaData.addAttribute(new ColumnMetaData(colName, javaType, dbType));
     }
 
 }

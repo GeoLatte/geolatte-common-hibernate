@@ -21,11 +21,11 @@
 package org.geolatte.common.automapper;
 
 /**
- * Represents a table column that is mapped to a field in a mapped class
+ * Represents table column metadata.
  *
  * @author Karel Maesen
  */
-public class Attribute {
+class ColumnMetaData {
 
     final private String columnName;
     final private int sqlType;
@@ -34,14 +34,14 @@ public class Attribute {
     private boolean isGeometry;
 
     /**
-     * Constructs the attribute.
+     * Constructs an instance.
      *
      * @param columnName the  column name of the attribute
      * @param sqlType the <code>java.sql.Type</code> code
      * @param dbType the name of the database type.
      * @throws IllegalArgumentException if any of the parameters is null
      */
-    Attribute(String columnName, int sqlType, String dbType) {
+    ColumnMetaData(String columnName, int sqlType, String dbType) {
         if (columnName == null || dbType == null) {
             throw new IllegalArgumentException("Null values not allowed in this constructor");
         }
@@ -51,26 +51,26 @@ public class Attribute {
     }
 
     /**
-     * Returns the column name of this <code>Attribute</code>.
+     * Returns the column name of this <code>ColumnMetaData</code>.
      *
-     * @return the column name of this <code>Attribute</code>.
+     * @return the column name of this <code>ColumnMetaData</code>.
      */
     public String getColumnName() {
         return columnName;
     }
 
     /**
-     * Returns the {@link java.sql.Types} code for the type of this <code>Attribute</code>
+     * Returns the {@link java.sql.Types} code for the type of this <code>ColumnMetaData</code>
      *
-     * @return the column name of this <code>Attribute</code>.
+     * @return the column name of this <code>ColumnMetaData</code>.
      */
     public int getSqlType() {
         return sqlType;
     }
 
     /**
-     * Returns the database name of the type of this <code>Attribute</code>
-     * @return the database name of the type of this <code>Attribute</code>
+     * Returns the database name of the type of this <code>ColumnMetaData</code>
+     * @return the database name of the type of this <code>ColumnMetaData</code>
      */
     public String getDbTypeName() {
         return dbType;
@@ -81,9 +81,9 @@ public class Attribute {
     }
 
     /**
-     * Returns true if this <code>Attribute</code> is an identifier.
+     * Returns true if this <code>ColumnMetaData</code> is an identifier.
      *
-     * @return true if this <code>Attribute</code> is an identifier.
+     * @return true if this <code>ColumnMetaData</code> is an identifier.
      */
     public boolean isIdentifier() {
         return isIdentifier;
@@ -94,12 +94,12 @@ public class Attribute {
     }
 
     /**
-     * Returns true if this <code>Attribute</code> corresponds to the primary geometry of the table.
+     * Returns true if this <code>ColumnMetaData</code> corresponds to the primary geometry of the table.
      *
      * <p>The primary geometry is the geometry which determines the location and shape of the object represented
      * by the table row.</p>
      *
-     * @return true if this <code>Attribute</code> is the primary geometry of the table.
+     * @return true if this <code>ColumnMetaData</code> is the primary geometry of the table.
      */
     public boolean isGeometry() {
         return this.isGeometry;
@@ -110,7 +110,7 @@ public class Attribute {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Attribute that = (Attribute) o;
+        ColumnMetaData that = (ColumnMetaData) o;
 
         if (sqlType != that.sqlType) return false;
         if (columnName != null ? !columnName.equals(that.columnName) : that.columnName != null) return false;

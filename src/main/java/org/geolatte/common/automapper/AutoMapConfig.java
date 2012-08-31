@@ -21,9 +21,7 @@
 
 package org.geolatte.common.automapper;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The configuration for an <code>AutoMapper</code>
@@ -41,7 +39,7 @@ public class AutoMapConfig {
     final private String packageName;
     final private NamingStrategy naming;
     final private TypeMapper typeMapper;
-    final private Map<TableRef, TableConfig> tableConfigs = new HashMap<TableRef, TableConfig>();
+    final private List<TableConfig> tableConfigs = new ArrayList<TableConfig>();
 
     /**
      * Constructs an instance
@@ -100,7 +98,7 @@ public class AutoMapConfig {
      * @param tableRef a <code>TableRef</code> that identifies a table in the database.
      */
     public void addTable(TableRef tableRef) {
-        tableConfigs.put(tableRef, TableConfig.Builder.emptyConfig(tableRef));
+        tableConfigs.add(TableConfig.Builder.emptyConfig(tableRef));
     }
 
     /**
@@ -109,27 +107,33 @@ public class AutoMapConfig {
      * @param config a <code>TableConfig</code> that instructs how to map the table to a generated class.
      */
     public void addTableConfig(TableConfig config) {
-        tableConfigs.put(config.getTableRef(), config);
-    }
-
-
-    /**
-     * Returns the <code>TableConfig</code> corresponding to the specified <code>TableRef</code>
-     *
-     * @param tableRef the <code>TableRef</code> that identifies a table in the database.
-     * @return the <code>TableConfig</code> for the table identified by the parameter tableRef.
-     */
-    public TableConfig getTableConfig(TableRef tableRef) {
-        return tableConfigs.get(tableRef);
+        tableConfigs.add(config);
     }
 
     /**
-     * Returns all <code>TableRef</code>s configured in this <code>AutoMapConfig</code>
+     * Returns all <code>TableConfig</code>s configured in this <code>AutoMapConfig</code>
      *
-     * @return the <code>Collection</code> of all <code>TableRef</code>s configured in this <code>AutoMapConfig</code>
+     * @return all <code>TableConfigs</code>s in this <code>AutoMapConfig</code>
      */
-    public Collection<TableRef> getTableRefs() {
-        return this.tableConfigs.keySet();
+    public Collection<TableConfig> getTableConfigs() {
+        return Collections.unmodifiableList(tableConfigs);
+    }
+
+    TableConfig getTableConfig(TableRef tableRef){
+       for (TableConfig cfg : tableConfigs) {
+           if (cfg.getTableRef().equals(tableRef)) {
+                return cfg;
+           }
+       }
+       return null;
+    }
+
+    List<TableRef> getTableRefs() {
+        List<TableRef> result = new ArrayList<TableRef>(tableConfigs.size());
+        for (TableConfig cfg : tableConfigs) {
+            result.add(cfg.getTableRef());
+        }
+        return result;
     }
 
 }

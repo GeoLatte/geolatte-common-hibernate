@@ -22,20 +22,29 @@
 package org.geolatte.common.automapper;
 
 /**
- * A Strategy to determine whether a specific table column is of type Geometry.
  *
- * @author Karel Maesen, Geovise BVBA
- *         creation-date: 8/26/12
  */
-interface GeometryColumnTest {
+class ColumnMapping {
 
-    /**
-     * Returns true if the specified <code>ColumnMetaData</code> is of type geometry.
-     *
-     * @param columnMetaData the <code>ColumnMetaData</code> to test
-     * @return true if the specified <code>ColumnMetaData</code> is of type geometry.
-     */
-    boolean isGeometry(ColumnMetaData columnMetaData);
+    final private String hibernateType;
+    final private String propertyName;
+    final private Class<?> javaType;
 
+    ColumnMapping(String propertyName, String hibernateType, Class<?> javaType) {
+        this.propertyName = propertyName;
+        this.hibernateType = hibernateType;
+        this.javaType = javaType;
+    }
 
+    String getHibernateType() {
+        return hibernateType;
+    }
+
+    String getPropertyName() {
+        return propertyName;
+    }
+
+    Class<?> getJavaType() {
+        return javaType;
+    }
 }

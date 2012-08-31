@@ -125,7 +125,7 @@ public class AutoMapper {
      * @return the <code>TableMapping</code> for the table specified by the <code>tableRef</code> parameter.
      * @tableRef the <code>TableRef</code> that determines a table in the database
      */
-    TableMapping getMappedClass(TableRef tableRef) {
+    TableMapping getTableMapping(TableRef tableRef) {
         return mappedClasses.get(tableRef);
 
     }
@@ -156,17 +156,22 @@ public class AutoMapper {
     }
 
     /**
-     * Returns the <code>Attributes</code> of the POJO Class to which the specified table is mapped
+     * Returns the property names of the POJO Class to which the specified table is mapped
      * <p/>
      * <p>If the specified table is not mapped by this instance, it returns an empty <code>List</code>.</p>
      *
      * @param tableRef the <code>TableRef</code> for the table
-     * @return list of attribute (field) names of the class that corresponds with the table identified by the arguments
+     * @return list of properties of the class that corresponds with the table identified by the arguments
      */
-    public Collection<Attribute> getAttributes(TableRef tableRef) {
-        TableMapping mc = mappedClasses.get(tableRef);
-        if (mc == null) return new ArrayList<Attribute>();
-        return mc.getMappedAttributes();
+    public List<String> getProperties(TableRef tableRef) {
+        List<String> result = new ArrayList<String>();
+        TableMapping tableMapping = mappedClasses.get(tableRef);
+        if (tableMapping == null) return result;
+        for ( ColumnMetaData columnMetaData : tableMapping.getMappedColumns()) {
+            ColumnMapping cm = tableMapping.getColumnMapping(columnMetaData);
+            result.add(cm.getPropertyName());
+        }
+        return result;
     }
 
     /**
@@ -181,20 +186,14 @@ public class AutoMapper {
         if (tableMapping == null) {
             return null;
         }
-        for (Attribute attribute : tableMapping.getMappedAttributes()) {
-            if (attribute.isIdentifier()) {
-                return tableMapping.getPropertyName(attribute);
-            }
-        }
-        //if we get here, then there is a programming error. All mapped classes should have an identifier because
-        //Hibernate needs one.
-        throw new IllegalStateException("A Mapped class with no Identifier found.");
+        ColumnMetaData identifierColumn = tableMapping.getIdentifierColumn();
+        return tableMapping.getColumnMapping(identifierColumn).getPropertyName();
     }
 
     /**
      * Returns the name of the primary geometry attribute.
      * <p/>
-     * <p>For the meaning of Primary, see {@link Attribute#isGeometry()}.</p>
+     * <p>For the meaning of Primary, see {@link ColumnMetaData#isGeometry()}.</p>
      *
      * @param tableRef the <code>TableRef</code> for the table
      * @return the name of the primary geometry attribute, or null if the table specified by the <code>tableRef</code>
@@ -205,9 +204,10 @@ public class AutoMapper {
         if (tableMapping == null) {
             return null;
         }
-        for (Attribute attribute : tableMapping.getMappedAttributes()) {
-            if (attribute.isGeometry()) {
-                return tableMapping.getPropertyName(attribute);
+        for (ColumnMetaData columnMetaData : tableMapping.getMappedColumns()) {
+            if (columnMetaData.isGeometry()) {
+                ColumnMapping cm = tableMapping.getColumnMapping(columnMetaData);
+                return cm.getPropertyName();
             }
         }
         return null;
@@ -222,7 +222,7 @@ public class AutoMapper {
     }
 
     private boolean isAlreadyMapped(TableRef tableRef) {
-        if (getMappedClass(tableRef) != null) {
+        if (getTableMapping(tableRef) != null) {
             LOGGER.info("Class info for table " + tableRef + " has already been mapped.");
             return true;
         }

@@ -30,7 +30,7 @@ package org.geolatte.common.automapper;
 public interface NamingStrategy {
 
     /**
-     * Create a valid name for a member variable based on the specified input
+     * Create a valid name for a member variable from on the specified input
      * name.
      *
      * @param base the input name.
@@ -55,7 +55,7 @@ public interface NamingStrategy {
     public String createGetterName(String propertyName);
 
     /**
-     * Create a valid name for a Java class based on the specified input.
+     * Create a valid name for a Java class from the specified input.
      *
      * @param tableRef the <code>TableRef</code> for which to construct a name.
      * @return a valid Java identifier for a class.

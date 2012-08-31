@@ -20,13 +20,7 @@
  */
 package org.geolatte.common.automapper;
 
-import javassist.ClassClassPath;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.NotFoundException;
 import org.hibernatespatial.GeometryUserType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Types;
 import java.util.ArrayList;
@@ -34,79 +28,65 @@ import java.util.List;
 
 /**
  * The <code>TypeMapper</code> maps a pair consisting of java.sql.Type, and a
- * database type name to a CtClass (a representation of a java type used by the
- * javassist class building tools) and to a Hibernate type (used when creating a
- * mapping file).
+ * database type name to a Java Class and to a Hibernate type name.
  *
  * @author Karel Maesen, Geovise BVBA (http://www.geovise.com/)
  */
-
-//TODO ---ensure that the CtClass is not leaked to the user --> keep intern and expose only the JavaClass.
-//          This implies that CtClass to Java type mapping should move to the MappingsGenerator
 public class TypeMapper {
 
-    protected final static Logger logger = LoggerFactory.getLogger(TypeMapper.class);
-
-    private final static String GEOMETRY_USER_TYPE = GeometryUserType.class
+  private final static String GEOMETRY_USER_TYPE = GeometryUserType.class
             .getCanonicalName();
 
     private List<TMEntry> entries = new ArrayList<TMEntry>();
 
     private String dbGeomType = "";
 
-    private CtClass ctGeom;
-
     public TypeMapper(String dbGeomType) {
 
         // first set the type to use for the geometry
         this.dbGeomType = dbGeomType;
 
-        ClassPool pool = ClassPool.getDefault();
-        // ensure that we can load the JTS classes.
-        pool.insertClassPath(new ClassClassPath(this.getClass()));
-
         try {
-            ctGeom = pool.get("com.vividsolutions.jts.geom.Geometry");
-            entries.add(new TMEntry(Types.BIGINT, "long", pool.get("java.lang.Long")));
-            entries.add(new TMEntry(Types.BINARY, "binary", pool.get("byte[]")));
-            entries.add(new TMEntry(Types.BIT, "boolean", pool.get("java.lang.Boolean")));
-            entries.add(new TMEntry(Types.BLOB, "blob", pool.get("byte[]")));
-            entries.add(new TMEntry(Types.BOOLEAN, "boolean", pool.get("java.lang.Boolean")));
-            entries.add(new TMEntry(Types.CHAR, "character", pool.get("java.lang.Character")));
-            entries.add(new TMEntry(Types.CLOB, "text", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.DATE, "date", pool.get("java.util.Date")));
-            entries.add(new TMEntry(Types.DECIMAL, "big_decimal", pool.get("java.math.BigDecimal")));
-            entries.add(new TMEntry(Types.DOUBLE, "double", pool.get("java.lang.Double")));
-            entries.add(new TMEntry(Types.FLOAT, "float", pool.get("java.lang.Float")));
-            entries.add(new TMEntry(Types.INTEGER, "integer", pool.get("java.lang.Integer")));
-            entries.add(new TMEntry(Types.LONGNVARCHAR, "text", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.LONGVARBINARY, "blob", pool.get("byte[]")));
-            entries.add(new TMEntry(Types.LONGVARCHAR, "text", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.NCHAR, "string", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.NCLOB, "text", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.NUMERIC, "big_decimal", pool.get("java.math.BigDecimal")));
-            entries.add(new TMEntry(Types.NVARCHAR, "string", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.REAL, "double", pool.get("java.lang.Double")));
-            entries.add(new TMEntry(Types.SMALLINT, "short", pool.get("java.lang.Short")));
-            entries.add(new TMEntry(Types.TIMESTAMP, "timestamp", pool.get("java.util.Date")));
-            entries.add(new TMEntry(Types.TIME, "time", pool.get("java.util.Date")));
-            entries.add(new TMEntry(Types.TINYINT, "byte", pool.get("java.lang.Byte")));
-            entries.add(new TMEntry(Types.VARCHAR, "string", pool.get("java.lang.String")));
-            entries.add(new TMEntry(Types.VARBINARY, "binary", pool.get("byte[]")));
-        } catch (NotFoundException e) {
+            entries.add(new TMEntry(Types.BIGINT, "long", java.lang.Long.class));
+            entries.add(new TMEntry(Types.BINARY, "binary", byte[].class));
+            entries.add(new TMEntry(Types.BIT, "boolean", java.lang.Boolean.class));
+            entries.add(new TMEntry(Types.BLOB, "blob", byte[].class));
+            entries.add(new TMEntry(Types.BOOLEAN, "boolean",java.lang.Boolean.class));
+            entries.add(new TMEntry(Types.CHAR, "character", java.lang.Character.class));
+            entries.add(new TMEntry(Types.CLOB, "text", java.lang.String.class));
+            entries.add(new TMEntry(Types.DATE, "date", java.util.Date.class));
+            entries.add(new TMEntry(Types.DECIMAL, "big_decimal", java.math.BigDecimal.class));
+            entries.add(new TMEntry(Types.DOUBLE, "double", java.lang.Double.class));
+            entries.add(new TMEntry(Types.FLOAT, "float", java.lang.Float.class));
+            entries.add(new TMEntry(Types.INTEGER, "integer", java.lang.Integer.class));
+            entries.add(new TMEntry(Types.LONGNVARCHAR, "text", java.lang.String.class));
+            entries.add(new TMEntry(Types.LONGVARBINARY, "blob", byte[].class));
+            entries.add(new TMEntry(Types.LONGVARCHAR, "text", java.lang.String.class));
+            entries.add(new TMEntry(Types.NCHAR, "string", java.lang.String.class));
+            entries.add(new TMEntry(Types.NCLOB, "text", java.lang.String.class));
+            entries.add(new TMEntry(Types.NUMERIC, "big_decimal", java.math.BigDecimal.class));
+            entries.add(new TMEntry(Types.NVARCHAR, "string", java.lang.String.class));
+            entries.add(new TMEntry(Types.REAL, "double", java.lang.Double.class));
+            entries.add(new TMEntry(Types.SMALLINT, "short", java.lang.Short.class));
+            entries.add(new TMEntry(Types.TIMESTAMP, "timestamp", java.util.Date.class));
+            entries.add(new TMEntry(Types.TIME, "time", java.util.Date.class));
+            entries.add(new TMEntry(Types.TINYINT, "byte", java.lang.Byte.class));
+            entries.add(new TMEntry(Types.VARCHAR, "string", java.lang.String.class));
+            entries.add(new TMEntry(Types.VARBINARY, "binary", byte[].class));
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
 
     }
 
-    public CtClass getCtClass(String dbType, int sqlType) throws TypeNotFoundException {
+    public Class<?> getClass(String dbType, int sqlType) throws TypeNotFoundException {
         if (dbType.equalsIgnoreCase(this.dbGeomType)) {
-            return this.ctGeom;
+            return com.vividsolutions.jts.geom.Geometry.class;
         }
         for (TMEntry entry : entries) {
             if (entry.javaType == sqlType) {
-                return entry.ctClass;
+                return entry.javaClass;
             }
         }
         throw new TypeNotFoundException(String.format("Can't map %s (sql type %d).", dbType, sqlType));
@@ -130,12 +110,12 @@ public class TypeMapper {
 
         protected String hibernateTypeName = "";
 
-        protected CtClass ctClass;
+        protected Class javaClass;
 
-        protected TMEntry(int jt, String ht, CtClass jc) {
-            this.javaType = jt;
-            this.hibernateTypeName = ht;
-            this.ctClass = jc;
+        protected TMEntry(int javaSqlType, String hibernateType, Class javaClass) {
+            this.javaType = javaSqlType;
+            this.hibernateTypeName = hibernateType;
+            this.javaClass = javaClass;
         }
     }
 

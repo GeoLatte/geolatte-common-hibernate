@@ -67,7 +67,6 @@ public class TableRef {
      * @param catalog the table catalog
      * @param schema the table schema
      * @param tableName the table name
-     * @return a <code>TableRef</code> for the table identified by the specified catalog, schema and table name.
      */
     public TableRef(String catalog, String schema, String tableName) {
         if (tableName == null) throw new IllegalArgumentException("TableName cannot be null.");

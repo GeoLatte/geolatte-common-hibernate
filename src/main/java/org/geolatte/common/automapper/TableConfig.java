@@ -35,7 +35,6 @@ public class TableConfig {
     final private TableRef tableRef;
     private String idColumn;
     private String geomColumn;
-    //TODO -- this should be lists of regex's
     final private List<String> excludeCols = new ArrayList<String>();
     final private List<String> includeCols = new ArrayList<String>();
 
@@ -66,7 +65,7 @@ public class TableConfig {
         /**
          * Sets the primary geometry column of the table.
          *
-         * <p>For a definition of primary, see {@link Attribute#isGeometry()}.</p>
+         * <p>For a definition of primary, see {@link ColumnMetaData#isGeometry()}.</p>
          *
          * <p>If this is not configured, the <code>AutoMapper</code> will select a random column of type <code>Geometry</code>.
          *
@@ -122,20 +121,9 @@ public class TableConfig {
          * @return the constructed <code>TableConfig</code>
          */
         public TableConfig result() {
-            removeExcludedColsThatAreAlsoIncluded();
             return underConstruction;
         }
 
-        //TODO -- write a unit test for this
-        private void removeExcludedColsThatAreAlsoIncluded() {
-            List<String> toRemove = new ArrayList<String>();
-            for (String excl: underConstruction.excludeCols){
-                if(underConstruction.includeCols.contains(excl)) {
-                    toRemove.add(excl);
-                }
-            }
-            underConstruction.excludeCols.removeAll(toRemove);
-        }
     }
 
     private TableConfig(TableRef tableRef) {
@@ -143,14 +131,27 @@ public class TableConfig {
         this.tableRef = tableRef;
     }
 
+    /**
+     * Returns the name of the configured database table
+     *
+     * @return the name of the configured database table
+     */
     public String getTableName() {
         return tableRef.getTableName();
     }
 
+    /**
+     * Returns the catalog of the configured database table
+     * @return the catalog of the configured database table
+     */
     public String getCatalog() {
         return tableRef.getCatalog();
     }
 
+    /**
+     * Returns the schema of the configured database table
+     * @return the schema of the configured database table
+     */
     public String getSchema() {
         return tableRef.getSchema();
     }
@@ -159,18 +160,38 @@ public class TableConfig {
         return tableRef;
     }
 
+    /**
+     * Returns the name of column that can be used as identifier.
+     *
+     * @return the name of column that can be used as identifier, or null if none is configured.
+     */
     public String getIdColumn() {
         return idColumn;
     }
 
+    /**
+     * Returns the name of the column that provides the primary geometry.
+     *
+     * @return the name of the column that provides the primary geometry, or null if none is configured.
+     */
     public String getGeomColumn() {
         return geomColumn;
     }
 
+    /**
+     * Returns the list of columns that need to be included by the <code>AutoMapper</code>
+     *
+     * @return the (possibly empty) list of columns that need to be included by the <code>AutoMapper</code>
+     */
     public List<String> getIncludedColumns() {
         return includeCols;
     }
 
+    /**
+     * Returns the list of columns that need to be excluded by the <code>AutoMapper</code>
+     *
+     * @return the (possibly empty) list of columns that need to be excluded by the <code>AutoMapper</code>
+     */
     public List<String> getExcludedColumns() {
         return excludeCols;
     }

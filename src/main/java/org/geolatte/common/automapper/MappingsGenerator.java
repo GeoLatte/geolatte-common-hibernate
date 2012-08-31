@@ -55,7 +55,7 @@ class MappingsGenerator {
 
     private void addTableElement(Element root, TableRef tableRef, AutoMapper autoMapper) {
         Element tableEl = root.addElement("class");
-        TableMapping tableMapping = autoMapper.getMappedClass(tableRef);
+        TableMapping tableMapping = autoMapper.getTableMapping(tableRef);
         tableEl.addAttribute("name", tableMapping.getSimpleName());
         tableEl.addAttribute("table", tableRef.getTableName());
         if (tableRef.getCatalog() != null) {
@@ -65,19 +65,20 @@ class MappingsGenerator {
             tableEl.addAttribute("schema", tableRef.getSchema());
         }
 
-        Attribute idAttribute = tableMapping.getIdentifer();
-        addElement("id", tableEl, idAttribute, tableMapping);
-        for (Attribute ai : tableMapping.getMappedAttributes()) {
-            if (ai.equals(idAttribute)) continue;
-            addElement("property", tableEl, ai, tableMapping);
+        ColumnMetaData idColumnMetaData = tableMapping.getIdentifierColumn();
+        addElement("id", tableEl, idColumnMetaData, tableMapping.getColumnMapping(idColumnMetaData));
+        for (ColumnMetaData ai : tableMapping.getMappedColumns()) {
+            if (ai.equals(idColumnMetaData)) continue;
+            ColumnMapping cMapping = tableMapping.getColumnMapping(ai);
+            addElement("property", tableEl, ai, cMapping);
         }
 
     }
 
-    private void addElement(String type, Element tableEl, Attribute ai, TableMapping tableMapping) {
+    private void addElement(String type, Element tableEl, ColumnMetaData ai, ColumnMapping cMapping) {
         Element colEl = tableEl.addElement(type);
-        colEl.addAttribute("name", tableMapping.getPropertyName(ai));
-        colEl.addAttribute("type", tableMapping.getHibernateType(ai));
+        colEl.addAttribute("name", cMapping.getPropertyName());
+        colEl.addAttribute("type", cMapping.getHibernateType());
         colEl.addAttribute("column", ai.getColumnName());
     }
 

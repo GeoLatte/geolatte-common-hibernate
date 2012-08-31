@@ -22,7 +22,7 @@
 package org.geolatte.common.automapper;
 
 /**
- * This Exception is thrown when the POJO Utility cannot locate a primary key.
+ * This Exception is thrown when a column type is mapped to a Java Class that cannot be located on the Classpath.
  *
  * @author Karel Maesen, Geovise BVBA
  *         creation-date: Jun 24, 2010

@@ -74,7 +74,7 @@ public class AutoMapperTest {
         assertNotNull(mapping);
         LOGGER.debug("Mapping file:\n" + mapping.asXML());
         assertEquals(cfg.getPackageName(), mapping.selectSingleNode("//hibernate-mapping/@package").getText());
-        assertEquals(cfg.getPackageName() + ".Testautomap", autoMapper.getMappedClass(TableRef.valueOf("TESTAUTOMAP")).getGeneratedClass().getCanonicalName());
+        assertEquals(cfg.getPackageName() + ".Testautomap", autoMapper.getTableMapping(TableRef.valueOf("TESTAUTOMAP")).getGeneratedClass().getCanonicalName());
         assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
         assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
         assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
@@ -142,7 +142,7 @@ public class AutoMapperTest {
         Document mapping = runAutoMapper(autoMapper);
         assertNotNull(mapping);
         assertNull(autoMapper.getIdAttribute(TableRef.valueOf("TESTAUTOMAP")));
-        assertNull(autoMapper.getMappedClass(TableRef.valueOf("TESTAUTOMAP")));
+        assertNull(autoMapper.getTableMapping(TableRef.valueOf("TESTAUTOMAP")));
         LOGGER.debug("Mapping file:\n" + mapping.asXML());
         //check if information can be retrieved
         final SessionFactory factory = buildSessionFactory(mapping);

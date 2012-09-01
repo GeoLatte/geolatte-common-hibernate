@@ -34,10 +34,15 @@ public class TableRef {
 
     /**
      * Creates an instance from catalog, schema and table names
+     *
+     * <p>if the catalog or schema parameter is an empty String, the catalog or schema will be set to
+     * <code>null</code>.</p>
+     *
      * @param catalog the table catalog
      * @param schema the table schema
      * @param tableName the table name
      * @return a <code>TableRef</code> for the table identified by the specified catalog, schema and table name.
+     * @throws IllegalArgumentException if the tableName parameter is null
      */
     public static TableRef valueOf(String catalog, String schema, String tableName) {
         return new TableRef(catalog, schema, tableName);
@@ -45,9 +50,14 @@ public class TableRef {
 
     /**
      * Creates an instance from catalog and table names
+     *
+     * <p>if the schema parameter is an empty String, the catalog or schema will be set to
+     * <code>null</code>.</p>
+     *
      * @param schema the table schema
      * @param tableName the table name
      * @return a <code>TableRef</code> for the table identified by the specified schema and table name.
+     * @throws IllegalArgumentException if the tableName parameter is null
      */
     public static TableRef valueOf(String schema, String tableName) {
         return new TableRef(null, schema, tableName);
@@ -55,11 +65,47 @@ public class TableRef {
 
     /**
      * Creates an instance from a table name
+     *
+     *<p>The  table name must have the format [&LT;catalog&GT;.][&LT;schema&GT;.]&LT;tablename&GT;.
+     * if the catalog or schema component is empty, the catalog or schema will be set to
+     * <code>null</code>.</p>
+     *
      * @param tableName the table name
      * @return a <code>TableRef</code> for the table identified by the specified table name.
+     * @throws IllegalArgumentException if the tableName parameter is null
      */
     public static TableRef valueOf(String tableName) {
-        return new TableRef(null, null, tableName);
+        if (tableName == null) {
+            throw new IllegalArgumentException("TableName cannot be null.");
+        }
+        String[] components = tableName.split("\\.");
+        return TableRef.valueOf(components);
+    }
+
+    /**
+     * Creates an instance from an array of table ref components,
+     *
+     * <p>The components should be (in order): catalog (optional), schema (optional), table name. if the catalog or schema
+     * component is an empty String, the catalog or schema will be set to <code>null</code>.</p>
+     *
+     * @param components the components of the reference.
+     * @return a new instance corresponding to the specified components.
+     * @throws IllegalArgumentException if the parameter is null, or has more than 3 elements.
+     */
+    public static TableRef valueOf(String[] components){
+        if (components == null) {
+            throw new IllegalArgumentException("Null argument not allowed.");
+        }
+        switch (components.length) {
+            case 1:
+                return new TableRef(null, null, components[0]);
+            case 2:
+                return new TableRef(null, components[0], components[1]);
+            case 3:
+                return new TableRef(components[0], components[1], components[2]);
+            default:
+                throw new IllegalArgumentException("String array has more than 3 elements.");
+        }
     }
 
     /**
@@ -67,12 +113,15 @@ public class TableRef {
      * @param catalog the table catalog
      * @param schema the table schema
      * @param tableName the table name
+     * @throws IllegalArgumentException if the tableName parameter is null
      */
     public TableRef(String catalog, String schema, String tableName) {
-        if (tableName == null) throw new IllegalArgumentException("TableName cannot be null.");
+        if (tableName == null || tableName.isEmpty()){
+            throw new IllegalArgumentException("TableName cannot be null.");
+        }
         this.tableName = tableName;
-        this.schema = schema;
-        this.catalog = catalog;
+        this.schema = toNullIfEmpty(schema);
+        this.catalog = toNullIfEmpty(catalog);
     }
 
     /**
@@ -99,10 +148,17 @@ public class TableRef {
         return catalog;
     }
 
+    private String toNullIfEmpty(String str) {
+        if (str == null) {
+            return null;
+        }
+        return str.isEmpty() ? null : str;
+    }
+
     /**
      * Generates a representation of this instance.
      *
-     * <p>It creates a string with structure: [catalog.][schema.]table name</p>
+     * <p>It creates a string with structure: [&LT;catalog&GT;.][&LT;schema&GT;.]&LT;table name&GT;</p>
      *
      * @return a string representation of this instance.
      */
@@ -110,13 +166,12 @@ public class TableRef {
         StringBuilder builder = new StringBuilder();
         if (catalog != null) {
             builder.append(catalog).append('.');
+            if( schema == null) {
+                builder.append('*').append('.');
+            }
         }
         if (schema != null) {
-            if (catalog != null) {
-                builder.append('*').append('.');
-            } else {
-                builder.append(schema).append('.');
-            }
+            builder.append(schema).append('.');
         }
         builder.append(tableName);
         return builder.toString();

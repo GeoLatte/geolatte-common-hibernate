@@ -26,36 +26,66 @@ import org.dom4j.Element;
 
 /**
  * This class creates a Hibernate mapping file for a list of tables.
+ * <p/>
+ * <p>This class is not thread-safe</p>
  *
  * @author Karel Maesen, Geovise BVBA (http://www.geovise.com/)
  */
 class MappingsGenerator {
 
-    private Document mappingDoc;
+    final private DatabaseMapping databaseMapping;
+    final private Document mappingDoc;
 
-    public MappingsGenerator() {
+    MappingsGenerator(DatabaseMapping dbMapping) {
+        databaseMapping = dbMapping;
+        mappingDoc = buildDocument();
+
     }
 
-    public Document getMappingsDoc() {
+    public Document getMappingsDocument() {
         return this.mappingDoc;
     }
 
-    public void load(AutoMapper autoMapper) {
+    private Document buildDocument() {
+        Document doc = initializeDocument();
+        Element root = addRoot(doc);
+        addTables(root);
+        return doc;
+    }
 
-        this.mappingDoc = DocumentHelper.createDocument();
-        this.mappingDoc.addDocType("hibernate-mapping",
+    private Document initializeDocument() {
+        Document doc = DocumentHelper.createDocument();
+        doc.addDocType("hibernate-mapping",
                 "-//Hibernate/Hibernate Mapping DTD 3.0//EN",
                 "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd");
-        Element root = this.mappingDoc.addElement("hibernate-mapping");
-        root.addAttribute("package", autoMapper.getPackageName());
-        for (TableRef tableRef : autoMapper.getMappedTables()) {
-            addTableElement(root, tableRef, autoMapper);
+        return doc;
+    }
+
+    private Element addRoot(Document doc) {
+        Element root = doc.addElement("hibernate-mapping");
+        root.addAttribute("package", databaseMapping.getPackageName());
+        return root;
+    }
+
+    private void addTables(Element root) {
+        for (TableRef tableRef : databaseMapping.getMappedTables()) {
+            addTableElement(root, tableRef, databaseMapping);
         }
     }
 
-    private void addTableElement(Element root, TableRef tableRef, AutoMapper autoMapper) {
+    private void addTableElement(Element root, TableRef tableRef, DatabaseMapping databaseMapping) {
+        TableMapping tableMapping = databaseMapping.getTableMapping(tableRef);
+        Element tableEl = createTableElement(root, tableRef, tableMapping);
+        ColumnMetaData idColumnMetaData = addIdentifierPropertyElement(tableMapping, tableEl);
+        for (ColumnMetaData ai : tableMapping.getMappedColumns()) {
+            if (ai.equals(idColumnMetaData)) continue;
+            ColumnMapping cMapping = tableMapping.getColumnMapping(ai);
+            addPropertyElement("property", tableEl, ai, cMapping);
+        }
+    }
+
+    private Element createTableElement(Element root, TableRef tableRef, TableMapping tableMapping) {
         Element tableEl = root.addElement("class");
-        TableMapping tableMapping = autoMapper.getTableMapping(tableRef);
         tableEl.addAttribute("name", tableMapping.getSimpleName());
         tableEl.addAttribute("table", tableRef.getTableName());
         if (tableRef.getCatalog() != null) {
@@ -64,18 +94,16 @@ class MappingsGenerator {
         if (tableRef.getSchema() != null) {
             tableEl.addAttribute("schema", tableRef.getSchema());
         }
-
-        ColumnMetaData idColumnMetaData = tableMapping.getIdentifierColumn();
-        addElement("id", tableEl, idColumnMetaData, tableMapping.getColumnMapping(idColumnMetaData));
-        for (ColumnMetaData ai : tableMapping.getMappedColumns()) {
-            if (ai.equals(idColumnMetaData)) continue;
-            ColumnMapping cMapping = tableMapping.getColumnMapping(ai);
-            addElement("property", tableEl, ai, cMapping);
-        }
-
+        return tableEl;
     }
 
-    private void addElement(String type, Element tableEl, ColumnMetaData ai, ColumnMapping cMapping) {
+    private ColumnMetaData addIdentifierPropertyElement(TableMapping tableMapping, Element tableEl) {
+        ColumnMetaData idColumnMetaData = tableMapping.getIdentifierColumn();
+        addPropertyElement("id", tableEl, idColumnMetaData, tableMapping.getColumnMapping(idColumnMetaData));
+        return idColumnMetaData;
+    }
+
+    private void addPropertyElement(String type, Element tableEl, ColumnMetaData ai, ColumnMapping cMapping) {
         Element colEl = tableEl.addElement(type);
         colEl.addAttribute("name", cMapping.getPropertyName());
         colEl.addAttribute("type", cMapping.getHibernateType());

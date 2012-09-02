@@ -27,22 +27,22 @@ class TableMetaData {
 
     private final TableRef tableRef;
 
-    private final List<ColumnMetaData> columnMetaDatas = new ArrayList<ColumnMetaData>();
+    private final List<ColumnMetaData> columnMetaData = new ArrayList<ColumnMetaData>();
 
     public TableMetaData(TableRef tableRef) {
         this.tableRef = tableRef;
     }
 
-    public List<ColumnMetaData> getColumnMetaDatas() {
-        return columnMetaDatas;
+    public List<ColumnMetaData> getColumnMetaData() {
+        return columnMetaData;
     }
 
     public TableRef getTableRef() {
         return tableRef;
     }
 
-    void addAttribute(ColumnMetaData ai) {
-        this.columnMetaDatas.add(ai);
+    void addColumnMetaData(ColumnMetaData metaData) {
+        this.columnMetaData.add(metaData);
     }
 
 }

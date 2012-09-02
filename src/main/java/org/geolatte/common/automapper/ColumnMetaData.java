@@ -37,8 +37,8 @@ class ColumnMetaData {
      * Constructs an instance.
      *
      * @param columnName the  name of the column
-     * @param sqlType the <code>java.sql.Type</code> code
-     * @param dbType the name of the database type.
+     * @param sqlType    the <code>java.sql.Type</code> code
+     * @param dbType     the name of the database type.
      * @throws IllegalArgumentException if any of the parameters is null
      */
     ColumnMetaData(String columnName, int sqlType, String dbType) {
@@ -70,6 +70,7 @@ class ColumnMetaData {
 
     /**
      * Returns the database name of the type of this <code>ColumnMetaData</code>
+     *
      * @return the database name of the type of this <code>ColumnMetaData</code>
      */
     public String getDbTypeName() {
@@ -95,7 +96,7 @@ class ColumnMetaData {
 
     /**
      * Returns true if this <code>ColumnMetaData</code> corresponds to the primary geometry of the table.
-     *
+     * <p/>
      * <p>The primary geometry is the geometry which determines the location and shape of the object represented
      * by the table row.</p>
      *

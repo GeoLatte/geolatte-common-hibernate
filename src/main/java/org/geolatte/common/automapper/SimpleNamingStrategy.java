@@ -55,8 +55,8 @@ public class SimpleNamingStrategy implements NamingStrategy {
     /**
      * Turns the name into a valid, simplified Java Identifier.
      *
-     * @param name
-     * @return
+     * @param name input String
+     * @return java identifier, based on input String.
      */
     private String toJavaName(String name) {
         StringBuilder stb = new StringBuilder();

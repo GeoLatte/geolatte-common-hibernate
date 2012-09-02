@@ -52,7 +52,7 @@ class TableMapping {
     }
 
     public ColumnMetaData getIdentifierColumn() {
-        for (ColumnMetaData cmd : mappedColumns.keySet()){
+        for (ColumnMetaData cmd : mappedColumns.keySet()) {
             if (cmd.isIdentifier()) {
                 return cmd;
             }

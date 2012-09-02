@@ -77,10 +77,11 @@ class MappedClassGenerator {
             LOGGER.info(String.format("Mapping table %s to %s", tableMetaData.getTableRef(), className));
             TableMapping result = new TableMapping(tableMetaData);
             CtClass ctClass = pool.makeClass(className);
-            for (ColumnMetaData ai : tableMetaData.getColumnMetaDatas()) {
+            for (ColumnMetaData ai : tableMetaData.getColumnMetaData()) {
                 generatePropertyForAttribute(result, ctClass, ai);
             }
-            loadClass(classLoader, result, ctClass);
+            Class<?> clazz = loadClass(classLoader, ctClass);
+            result.setGeneratedClass(clazz);
             return result;
         } catch (CannotCompileException e) {
             throw new RuntimeException("Problem generating class for table " + tableMetaData.getTableRef(), e);
@@ -88,11 +89,11 @@ class MappedClassGenerator {
 
     }
 
-    private void loadClass(ClassLoader classLoader, TableMapping result, CtClass ctClass) throws CannotCompileException {
+    private Class<?> loadClass(ClassLoader classLoader, CtClass ctClass) throws CannotCompileException {
         ProtectionDomain pd = ctClass.getClass().getProtectionDomain();
         Class<?> clazz = ctClass.toClass(classLoader, pd);
         ctClass.detach();
-        result.setGeneratedClass(clazz);
+        return clazz;
     }
 
     private void generatePropertyForAttribute(TableMapping tableMapping, CtClass pojo, ColumnMetaData ai) {
@@ -106,7 +107,7 @@ class MappedClassGenerator {
             pojo.addMethod(getter);
             pojo.addMethod(setter);
             tableMapping.addColumnMapping(ai, propertyName,
-                    typeMapper.getHibernateType(ai.getDbTypeName(), ai.getSqlType()) ,
+                    typeMapper.getHibernateType(ai.getDbTypeName(), ai.getSqlType()),
                     typeMapper.getClass(ai.getDbTypeName(), ai.getSqlType()));
             return;
         } catch (CannotCompileException e) {
@@ -124,8 +125,7 @@ class MappedClassGenerator {
                     ai.getDbTypeName(), ai.getSqlType()));
         }
         try {
-            CtClass ctClass = pool.get(javaClass.getCanonicalName());
-            return ctClass;
+            return pool.get(javaClass.getCanonicalName());
         } catch (NotFoundException e) {
             throw new TypeNotFoundException(javaClass.getCanonicalName(), e);
         }

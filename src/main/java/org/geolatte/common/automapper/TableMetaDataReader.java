@@ -67,17 +67,16 @@ class TableMetaDataReader {
             setAsGeometry(cInfo, cfg.getIdentifierColumn());
             return;
         }
-        String column = determineGeometry(cfg.getTableRef(), cInfo);
+        String column = determineGeometry(cInfo);
         if (column != null) {
             setAsGeometry(cInfo, column);
-            return;
         }
-        throw new MissingIdentifierException(cfg.getTableRef().toString());
+        return;
     }
 
-    private String determineGeometry(TableRef tableRef, TableMetaData cInfo) {
-        for (ColumnMetaData ai : cInfo.getColumnMetaDatas()) {
-            if (this.geomTest.isGeometry(ai)) return ai.getColumnName();
+    private String determineGeometry(TableMetaData cInfo) {
+        for (ColumnMetaData columnMetaData : cInfo.getColumnMetaData()) {
+            if (this.geomTest.isGeometry(columnMetaData)) return columnMetaData.getColumnName();
         }
         return null;
     }
@@ -123,7 +122,7 @@ class TableMetaDataReader {
             throw new RuntimeException(ex);
         } finally {
             try {
-                if(rs != null) rs.close();
+                if (rs != null) rs.close();
             } catch (SQLException e) {
                 // do nothing
             }
@@ -141,7 +140,7 @@ class TableMetaDataReader {
     }
 
     private boolean setAsIdentifier(TableMetaData metaData, String column) {
-        for (ColumnMetaData ai : metaData.getColumnMetaDatas()) {
+        for (ColumnMetaData ai : metaData.getColumnMetaData()) {
             if (ai.getColumnName().equals(column)) {
                 ai.setAsIdentifier(true);
                 return true;
@@ -153,7 +152,7 @@ class TableMetaDataReader {
 
 
     private boolean setAsGeometry(TableMetaData metaData, String column) {
-        for (ColumnMetaData ai : metaData.getColumnMetaDatas()) {
+        for (ColumnMetaData ai : metaData.getColumnMetaData()) {
             if (ai.getColumnName().equals(column)) {
                 ai.setAsGeometry(true);
                 return true;
@@ -165,7 +164,7 @@ class TableMetaDataReader {
 
 
     private void addAttribute(TableMetaData metaData, String colName, String dbType, int javaType) {
-        metaData.addAttribute(new ColumnMetaData(colName, javaType, dbType));
+        metaData.addColumnMetaData(new ColumnMetaData(colName, javaType, dbType));
     }
 
 }

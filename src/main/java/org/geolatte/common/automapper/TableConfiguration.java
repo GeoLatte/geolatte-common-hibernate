@@ -44,6 +44,7 @@ public class TableConfiguration {
 
         /**
          * Creates an empty <code>TableConfiguration</code> (with no information save to the <code>TableRef</code>).
+         *
          * @param tableRef the <code>TableRef</code> for the created <code>TableConfiguration</code>.
          * @return an empty <code>TableConfiguration</code> for the table specified by the <code>tableRef</code> parameter.
          */
@@ -55,6 +56,7 @@ public class TableConfiguration {
 
         /**
          * Constructs an instance for the specified table.
+         *
          * @param tableRef the <code>TableRef</code> for the table for which a <code>TableConfiguration</code> is to be built.
          */
         public Builder(TableRef tableRef) {
@@ -63,9 +65,9 @@ public class TableConfiguration {
 
         /**
          * Sets the primary geometry column of the table.
-         *
+         * <p/>
          * <p>For a definition of primary, see {@link ColumnMetaData#isGeometry()}.</p>
-         *
+         * <p/>
          * <p>If this is not configured, the <code>AutoMapper</code> will select a random column of type <code>Geometry</code>.
          *
          * @param geometryColumn the name of the geometry column
@@ -78,7 +80,7 @@ public class TableConfiguration {
 
         /**
          * Sets the identifier column of the table.
-         *
+         * <p/>
          * <p>If this is not configured, the <code>AutoMapper</code> will select the primary key of the table</code>
          *
          * @param identifierColumn the name of the identifier column
@@ -91,7 +93,7 @@ public class TableConfiguration {
 
         /**
          * Excludes a column from the mapping process
-         *
+         * <p/>
          * <p>No class member will be generated for the specified column.</p>
          *
          * @param excluded the name of the column in the table to exclude
@@ -104,6 +106,7 @@ public class TableConfiguration {
 
         /**
          * Returns the <code>TableConfiguration</code> that is built by this instance.
+         *
          * @return the constructed <code>TableConfiguration</code>
          */
         public TableConfiguration result() {
@@ -128,6 +131,7 @@ public class TableConfiguration {
 
     /**
      * Returns the catalog of the configured database table
+     *
      * @return the catalog of the configured database table
      */
     public String getCatalog() {
@@ -136,6 +140,7 @@ public class TableConfiguration {
 
     /**
      * Returns the schema of the configured database table
+     *
      * @return the schema of the configured database table
      */
     public String getSchema() {

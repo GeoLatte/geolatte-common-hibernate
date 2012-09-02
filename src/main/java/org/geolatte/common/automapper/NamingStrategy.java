@@ -25,7 +25,6 @@ package org.geolatte.common.automapper;
  * member names from table and column names.
  *
  * @author Karel Maesen, Geovise BVBA (http://www.geovise.com/)
- *
  */
 public interface NamingStrategy {
 

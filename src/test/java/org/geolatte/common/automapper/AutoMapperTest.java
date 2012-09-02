@@ -70,25 +70,26 @@ public class AutoMapperTest {
 
         //Test that the configuration is successful
         final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
-        Document mapping = runAutoMapper(autoMapper);
-        assertNotNull(mapping);
-        LOGGER.debug("Mapping file:\n" + mapping.asXML());
-        assertEquals(cfg.getPackageName(), mapping.selectSingleNode("//hibernate-mapping/@package").getText());
-        assertEquals(cfg.getPackageName() + ".Testautomap", autoMapper.getTableMapping(TableRef.valueOf("TESTAUTOMAP")).getGeneratedClass().getCanonicalName());
-        assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
-        assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
-        assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
-        assertEquals("integer", mapping.selectSingleNode("//hibernate-mapping/class/id/@type").getText());
-        assertEquals("GEOMETRY", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@column").getText());
-        assertEquals("org.hibernatespatial.GeometryUserType", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@type").getText());
-        assertEquals("geometry", autoMapper.getGeometryProperty(TableRef.valueOf("TESTAUTOMAP")));
-        assertEquals("id", autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
+        final DatabaseMapping dbMapping = runAutoMapper(autoMapper);
+        Document ormDoc = dbMapping.generateHibernateMappingDocument();
+        assertNotNull(ormDoc);
+        LOGGER.debug("Mapping file:\n" + ormDoc.asXML());
+        assertEquals(cfg.getPackageName(), ormDoc.selectSingleNode("//hibernate-mapping/@package").getText());
+        assertEquals(cfg.getPackageName() + ".Testautomap", dbMapping.getTableMapping(TableRef.valueOf("TESTAUTOMAP")).getGeneratedClass().getCanonicalName());
+        assertEquals("Testautomap", ormDoc.selectSingleNode("//hibernate-mapping/class/@name").getText());
+        assertEquals("TESTAUTOMAP", ormDoc.selectSingleNode("//hibernate-mapping/class/@table").getText());
+        assertEquals("id", ormDoc.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
+        assertEquals("integer", ormDoc.selectSingleNode("//hibernate-mapping/class/id/@type").getText());
+        assertEquals("GEOMETRY", ormDoc.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@column").getText());
+        assertEquals("org.hibernatespatial.GeometryUserType", ormDoc.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@type").getText());
+        assertEquals("geometry", dbMapping.getGeometryProperty(TableRef.valueOf("TESTAUTOMAP")));
+        assertEquals("id", dbMapping.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
 
         //check if information can be retrieved
-        final SessionFactory factory = buildSessionFactory(mapping);
+        final SessionFactory factory = buildSessionFactory(ormDoc);
         doWithinTransaction(factory, new TxOp(){
             public void execute(Session session){
-                Criteria criteria = session.createCriteria(autoMapper.getGeneratedClass(TableRef.valueOf("TESTAUTOMAP")));
+                Criteria criteria = session.createCriteria(dbMapping.getGeneratedClass(TableRef.valueOf("TESTAUTOMAP")));
                 List list = criteria.list();
                 assertTrue(list.size() == 1);
             }
@@ -108,19 +109,20 @@ public class AutoMapperTest {
 
         //Test that the configuration is successful
         final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
-        Document mapping = runAutoMapper(autoMapper);
-        assertNotNull(mapping);
-        LOGGER.debug("Mapping file:\n" + mapping.asXML());
-        assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
-        assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
-        assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
-        assertEquals("id", autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
+        final DatabaseMapping dbMapping = runAutoMapper(autoMapper);
+        Document ormDocument = dbMapping.generateHibernateMappingDocument();
+        assertNotNull(ormDocument);
+        LOGGER.debug("Mapping file:\n" + ormDocument.asXML());
+        assertEquals("Testautomap", ormDocument.selectSingleNode("//hibernate-mapping/class/@name").getText());
+        assertEquals("TESTAUTOMAP", ormDocument.selectSingleNode("//hibernate-mapping/class/@table").getText());
+        assertEquals("id", ormDocument.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
+        assertEquals("id", dbMapping.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
 
         //check if information can be retrieved
-        final SessionFactory factory = buildSessionFactory(mapping);
+        final SessionFactory factory = buildSessionFactory(ormDocument);
         doWithinTransaction(factory, new TxOp(){
             public void execute(Session session){
-                Criteria criteria = session.createCriteria(autoMapper.getGeneratedClass(TableRef.valueOf("TESTAUTOMAP")));
+                Criteria criteria = session.createCriteria(dbMapping.getGeneratedClass(TableRef.valueOf("TESTAUTOMAP")));
                 List list = criteria.list();
                 assertTrue(list.size() == 2);
             }
@@ -139,12 +141,13 @@ public class AutoMapperTest {
 
         //Test that the configuration is successful
         final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
-        Document mapping = runAutoMapper(autoMapper);
-        assertNotNull(mapping);
-        assertNull(mapping.selectSingleNode("//hibernate-mapping/class/@name"));
-        assertNull(autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
-        assertNull(autoMapper.getTableMapping(TableRef.valueOf("TESTAUTOMAP")));
-        LOGGER.debug("Mapping file:\n" + mapping.asXML());
+        final DatabaseMapping dbMapping = runAutoMapper(autoMapper);
+        Document ormDoc = dbMapping.generateHibernateMappingDocument();
+        assertNotNull(ormDoc);
+        assertNull(ormDoc.selectSingleNode("//hibernate-mapping/class/@name"));
+        assertNull(dbMapping.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
+        assertNull(dbMapping.getTableMapping(TableRef.valueOf("TESTAUTOMAP")));
+        LOGGER.debug("Mapping file:\n" + ormDoc.asXML());
     }
 
     @Test
@@ -158,19 +161,20 @@ public class AutoMapperTest {
 
         //Test that the configuration is successful
         final AutoMapper autoMapper = new AutoMapper(cfg, disposableCL());
-        Document mapping = runAutoMapper(autoMapper);
-        assertNotNull(mapping);
-        LOGGER.debug("Mapping file:\n" + mapping.asXML());
-        assertEquals(cfg.getPackageName(), mapping.selectSingleNode("//hibernate-mapping/@package").getText());
-        assertEquals(cfg.getPackageName() + ".Testautomap", autoMapper.getTableMapping(TableRef.valueOf("TESTAUTOMAP")).getGeneratedClass().getCanonicalName());
-        assertEquals("Testautomap", mapping.selectSingleNode("//hibernate-mapping/class/@name").getText());
-        assertEquals("TESTAUTOMAP", mapping.selectSingleNode("//hibernate-mapping/class/@table").getText());
-        assertEquals("id", mapping.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
-        assertEquals("integer", mapping.selectSingleNode("//hibernate-mapping/class/id/@type").getText());
-        assertEquals("GEOMETRY", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@column").getText());
-        assertEquals("org.hibernatespatial.GeometryUserType", mapping.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@type").getText());
-        assertEquals("id", autoMapper.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
-        assertNull(mapping.selectSingleNode("//hibernate-mapping/class/property[@name='price']"));
+        final DatabaseMapping dbMapping = runAutoMapper(autoMapper);
+        Document ormDoc = dbMapping.generateHibernateMappingDocument();
+        assertNotNull(ormDoc);
+        LOGGER.debug("Mapping file:\n" + ormDoc.asXML());
+        assertEquals(cfg.getPackageName(), ormDoc.selectSingleNode("//hibernate-mapping/@package").getText());
+        assertEquals(cfg.getPackageName() + ".Testautomap", dbMapping.getTableMapping(TableRef.valueOf("TESTAUTOMAP")).getGeneratedClass().getCanonicalName());
+        assertEquals("Testautomap", ormDoc.selectSingleNode("//hibernate-mapping/class/@name").getText());
+        assertEquals("TESTAUTOMAP", ormDoc.selectSingleNode("//hibernate-mapping/class/@table").getText());
+        assertEquals("id", ormDoc.selectSingleNode("//hibernate-mapping/class/id/@name").getText());
+        assertEquals("integer", ormDoc.selectSingleNode("//hibernate-mapping/class/id/@type").getText());
+        assertEquals("GEOMETRY", ormDoc.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@column").getText());
+        assertEquals("org.hibernatespatial.GeometryUserType", ormDoc.selectSingleNode("//hibernate-mapping/class/property[@name='geometry']/@type").getText());
+        assertEquals("id", dbMapping.getIdProperty(TableRef.valueOf("TESTAUTOMAP")));
+        assertNull(ormDoc.selectSingleNode("//hibernate-mapping/class/property[@name='price']"));
 
     }
 
@@ -188,8 +192,8 @@ public class AutoMapperTest {
     }
 
 
-    private Document runAutoMapper(final AutoMapper autoMapper) throws SQLException {
-        return (Document)server.doWithinConnection (
+    private DatabaseMapping runAutoMapper(final AutoMapper autoMapper) throws SQLException {
+        return (DatabaseMapping)server.doWithinConnection (
                     new DbOp (){
                         @Override
                         public Object execute(Connection conn) throws SQLException {

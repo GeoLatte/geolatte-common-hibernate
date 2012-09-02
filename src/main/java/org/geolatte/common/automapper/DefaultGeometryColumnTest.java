@@ -43,7 +43,7 @@ class DefaultGeometryColumnTest implements GeometryColumnTest {
                 return true;
             }
         } catch (TypeNotFoundException e) {
-            new RuntimeException(e);
+            throw new RuntimeException(e);
         }
         return false;
     }

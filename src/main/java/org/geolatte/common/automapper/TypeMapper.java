@@ -34,24 +34,24 @@ import java.util.List;
  */
 public class TypeMapper {
 
-  private final static String GEOMETRY_USER_TYPE = GeometryUserType.class
+    final private static String GEOMETRY_USER_TYPE = GeometryUserType.class
             .getCanonicalName();
 
-    private List<TMEntry> entries = new ArrayList<TMEntry>();
+    final private List<TMEntry> entries = new ArrayList<TMEntry>();
 
-    private String dbGeomType = "";
+    final private String dbGeomType;
 
     public TypeMapper(String dbGeomType) {
-
-        // first set the type to use for the geometry
+        if (dbGeomType == null) {
+            throw new IllegalArgumentException("TypeMapper received null argument.");
+        }
         this.dbGeomType = dbGeomType;
-
         try {
             entries.add(new TMEntry(Types.BIGINT, "long", java.lang.Long.class));
             entries.add(new TMEntry(Types.BINARY, "binary", byte[].class));
             entries.add(new TMEntry(Types.BIT, "boolean", java.lang.Boolean.class));
             entries.add(new TMEntry(Types.BLOB, "blob", byte[].class));
-            entries.add(new TMEntry(Types.BOOLEAN, "boolean",java.lang.Boolean.class));
+            entries.add(new TMEntry(Types.BOOLEAN, "boolean", java.lang.Boolean.class));
             entries.add(new TMEntry(Types.CHAR, "character", java.lang.Character.class));
             entries.add(new TMEntry(Types.CLOB, "text", java.lang.String.class));
             entries.add(new TMEntry(Types.DATE, "date", java.util.Date.class));
@@ -76,8 +76,6 @@ public class TypeMapper {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     public Class<?> getClass(String dbType, int sqlType) throws TypeNotFoundException {
@@ -106,13 +104,13 @@ public class TypeMapper {
     }
 
     private static class TMEntry {
-        protected int javaType = 0;
+        int javaType = 0;
 
-        protected String hibernateTypeName = "";
+        String hibernateTypeName = "";
 
-        protected Class javaClass;
+        Class javaClass;
 
-        protected TMEntry(int javaSqlType, String hibernateType, Class javaClass) {
+        TMEntry(int javaSqlType, String hibernateType, Class javaClass) {
             this.javaType = javaSqlType;
             this.hibernateTypeName = hibernateType;
             this.javaClass = javaClass;

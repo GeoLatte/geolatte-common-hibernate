@@ -21,7 +21,10 @@
 
 package org.geolatte.common.automapper;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The configuration for an <code>AutoMapper</code>
@@ -43,9 +46,10 @@ public class AutoMapConfiguration {
 
     /**
      * Constructs an instance
+     *
      * @param packageName the package name for all generated classes
-     * @param naming the <code>NamingStrategy</code> to use
-     * @param typeMapper the <code>TypeMapper</code> to use
+     * @param naming      the <code>NamingStrategy</code> to use
+     * @param typeMapper  the <code>TypeMapper</code> to use
      */
     public AutoMapConfiguration(String packageName, NamingStrategy naming, TypeMapper typeMapper) {
         this.packageName = packageName;
@@ -92,7 +96,7 @@ public class AutoMapConfiguration {
 
     /**
      * Adds a <code>TableRef</code> to the configuration.
-     *
+     * <p/>
      * <p>A default (empty) <code>TableConfiguration</code> will be be created and stored in the configuration.</p>
      *
      * @param tableRef a <code>TableRef</code> that identifies a table in the database.
@@ -119,13 +123,13 @@ public class AutoMapConfiguration {
         return Collections.unmodifiableList(tableConfigurations);
     }
 
-    TableConfiguration getTableConfiguration(TableRef tableRef){
-       for (TableConfiguration cfg : tableConfigurations) {
-           if (cfg.getTableRef().equals(tableRef)) {
+    TableConfiguration getTableConfiguration(TableRef tableRef) {
+        for (TableConfiguration cfg : tableConfigurations) {
+            if (cfg.getTableRef().equals(tableRef)) {
                 return cfg;
-           }
-       }
-       return null;
+            }
+        }
+        return null;
     }
 
     List<TableRef> getTableRefs() {

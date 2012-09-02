@@ -31,17 +31,18 @@
         </layout>
     </appender>
 
-    <root>
-        <priority value="debug"/>
-        <appender-ref ref="console"/>
-    </root>
-
     <category name="org.hibernate.SQL">
-        <priority value="TRACE"/>
+        <priority value="info"/>
     </category>
 
     <category name="org.hibernate.type">
-        <priority value="TRACE"/>
+        <priority value="info"/>
     </category>
+
+    <root>
+        <priority value="info"/>
+        <appender-ref ref="console"/>
+    </root>
+
 
 </log4j:configuration>

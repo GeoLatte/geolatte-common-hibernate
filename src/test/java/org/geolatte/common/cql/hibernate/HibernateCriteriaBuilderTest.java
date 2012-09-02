@@ -22,8 +22,8 @@
 package org.geolatte.common.cql.hibernate;
 
 import org.geolatte.common.cql.AbstractCriteriaBuilderTest;
+import org.geolatte.common.testDb.GeoDBWrapper;
 import org.geolatte.testobjects.FilterableObject;
-import org.h2.tools.Server;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -33,8 +33,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.util.List;
@@ -56,10 +54,7 @@ import java.util.List;
 @RunWith(Parameterized.class)
 public class HibernateCriteriaBuilderTest extends AbstractCriteriaBuilderTest {
 
-    private static final String tcpPort = "4321";
-    private static final String dbLocation = "~/geolattetest";
-    private static Server server;
-    private static Server webServer;
+    static GeoDBWrapper server;
 
     /**
      * Constructor
@@ -75,16 +70,9 @@ public class HibernateCriteriaBuilderTest extends AbstractCriteriaBuilderTest {
     @BeforeClass
     public static void oneTimeSetUp() throws Exception {
 
+        server = new GeoDBWrapper();
         // start the server, allows to access the database remotly
-        server = Server.createTcpServer("-tcpPort", tcpPort);
-        webServer = Server.createWebServer("-webPort", "8123");
-        server.start();
-        webServer.start();
-        System.out.println("H2 Database started on port " + tcpPort );
-        // now use the database in your application in embedded mode
-        Class.forName("org.h2.Driver");
-        System.out.println("Connecting to database " + dbLocation);
-        Connection conn = DriverManager.getConnection("jdbc:h2:" + dbLocation, "sa", "sa");
+       Connection conn = server.getConnection();
         // Execute a random query to check if everything works
         Statement stat = conn.createStatement();
         System.out.println("Dropping table FilterableObject");
@@ -94,16 +82,13 @@ public class HibernateCriteriaBuilderTest extends AbstractCriteriaBuilderTest {
 
     @AfterClass
     public static void oneTimeTearDown() throws Exception {
-
         // stop the server
-        server.stop();
         server.stop();
     }
 
     @Before
     public void setUp() throws Exception {
-
-        cleanDatabase();
+        server.cleanDatabase();
     }
 
     /**
@@ -192,18 +177,5 @@ public class HibernateCriteriaBuilderTest extends AbstractCriteriaBuilderTest {
         return criteria.list();
     }
 
-    /**
-     * Helper to remove all objects from the database.
-     * @throws java.sql.SQLException When clean database failed due to an database error.
-     */
-    private void cleanDatabase() throws SQLException {
 
-        Connection conn = DriverManager.getConnection("jdbc:h2:" + dbLocation, "sa", "sa");
-        // Execute a random query to check if everything works
-        Statement stat = conn.createStatement();
-        System.out.println("RESET DATABASE - Dropping all database objects");
-        stat.execute("DROP ALL OBJECTS");
-        conn.close();
-
-    }
 }

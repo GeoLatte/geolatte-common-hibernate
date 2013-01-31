@@ -27,7 +27,7 @@
     <groupId>org.geolatte</groupId>
     <artifactId>geolatte-common-hibernate</artifactId>
     <packaging>jar</packaging>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.7-SNAPSHOT</version>
     <name>geolatte-common-hibernate</name>
     <description>
         This GeoLatte-common-hibernate library contains classes that depend on Hibernate (Spatial).
@@ -59,9 +59,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:GeoLatte/geolatte-featureserver.git</connection>
-        <url>scm:git:git@github.com:GeoLatte/geolatte-featureserver.git</url>
-        <developerConnection>scm:git:git@github.com:GeoLatte/geolatte-featureserver.git</developerConnection>
+        <connection>scm:git:git@github.com:GeoLatte/geolatte-common-hibernate.git</connection>
+        <url>scm:git:git@github.com:GeoLatte/geolatte-common-hibernate.git</url>
+        <developerConnection>scm:git:git@github.com:GeoLatte/geolatte-common-hibernate.git</developerConnection>
     </scm>
 
     <developers>
@@ -134,7 +134,7 @@
         <dependency>
             <groupId>org.geolatte</groupId>
             <artifactId>geolatte-common</artifactId>
-            <version>0.5.1</version>
+            <version>0.6</version>
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
